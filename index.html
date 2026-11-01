@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Fikes Certificate Center</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Font Sertifikat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Great+Vibes&family=Montserrat:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SheetJS (Import & Export Excel .xlsx/.csv) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- PDF.js (Render Template PDF ke Canvas) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- jsPDF (Generate Output PDF Sertifikat) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#EBF2FC',
+              100: '#D6E4FA',
+              500: '#2563EB',
+              600: '#1E56B5',
+              700: '#1B54B4',
+              800: '#15418C',
+              900: '#0F2E66'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Reset & Full Page Overlay untuk Blogger Tanpa Edit XML (Responsif HP, Tablet, Desktop) */
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #1E56B5;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #fikes-app-root {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      z-index: 999999;
+      background-color: #1E56B5;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Custom Scrollbar Halus */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    /* Folder Tab Card Style sesuai Referensi UI */
+    .folder-card {
+      position: relative;
+      border-radius: 0 16px 16px 16px;
+      margin-top: 14px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .folder-card::before {
+      content: '';
+      position: absolute;
+      top: -14px;
+      left: 0;
+      width: 46%;
+      height: 15px;
+      border-radius: 12px 12px 0 0;
+      background-color: inherit;
+      clip-path: polygon(0 0, 82% 0, 100% 100%, 0% 100%);
+    }
+    .folder-card:hover {
+      transform: translateY(-3px);
+    }
+
+    /* Interactive Canvas Wrapper */
+    .canvas-stage {
+      background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- THUMBNAIL TERSEMBUNYI UNTUK POSTINGAN BLOGGER -->
+  <div style="display:none !important;">
+    <img src="https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&w=800&q=80" alt="Fikes Certificate Center Thumbnail" />
+  </div>
+
+  <!-- ROOT CONTAINER APLIKASI (RESPONSIF HP, TABLET, DESKTOP) -->
+  <div id="fikes-app-root" class="p-0 sm:p-2 md:p-3 lg:p-4">
+
+    <!-- MAIN FRAME PUTIH -->
+    <div class="w-full h-full bg-white sm:rounded-[22px] md:rounded-[28px] shadow-2xl flex flex-col overflow-hidden border border-white/20">
+
+      <!-- TOP HEADER BAR -->
+      <header class="px-3 sm:px-5 md:px-8 py-2.5 md:py-0 md:h-20 flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-b border-slate-100 shrink-0 bg-white z-20">
+        
+        <div class="flex items-center justify-between w-full md:w-auto gap-2">
+          <!-- Kiri: Hamburger (HP/Tablet) + Logo & Nama Aplikasi (Menyatu dengan Background) -->
+          <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+            <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 shrink-0" aria-label="Menu">
+              <i data-lucide="menu" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            </button>
+
+            <div class="flex items-center gap-2.5 sm:gap-3.5 group cursor-pointer min-w-0" onclick="handleQuickBrandClick()">
+              <img id="header-app-logo" src="" alt="Logo" class="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 object-contain bg-transparent shrink-0" />
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <h1 id="header-app-name" class="text-sm sm:text-lg md:text-xl font-extrabold text-[#1B54B4] tracking-tight leading-none truncate">
+                    Fikes Certificate Center
+                  </h1>
+                  <button id="btn-quick-edit-brand" title="Edit Logo & Nama Aplikasi" class="hidden group-hover:inline-flex items-center justify-center w-6 h-6 rounded-full bg-brand-50 text-[#1B54B4] hover:bg-brand-100 transition shrink-0">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+                <span class="text-[10px] sm:text-[11px] font-medium text-slate-400 block mt-0.5 truncate" id="header-app-subtitle">Fakultas Ilmu Kesehatan - Sistem E-Sertifikat</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kanan (Tampil di HP/Tablet/Desktop): Notifikasi, Settings, & Nama Admin/Panitia 1 Baris -->
+          <div class="flex md:hidden items-center gap-1.5 shrink-0">
+            <button onclick="switchTab('logs')" title="Riwayat Pengiriman" class="p-2 rounded-full text-slate-500 hover:bg-slate-100 relative transition">
+              <i data-lucide="bell" class="w-4 h-4"></i>
+              <span id="notif-sent-dot-mobile" class="w-2 h-2 rounded-full bg-emerald-500 absolute top-1.5 right-1.5 hidden"></span>
+            </button>
+            <div class="flex items-center gap-2 pl-1">
+              <div class="text-right">
+                <p id="current-user-name-mobile" class="text-[11px] font-bold text-slate-800 leading-tight whitespace-nowrap">Andriana Suherman, S.Kom.</p>
+                <p id="current-user-role-mobile" class="text-[9px] font-bold uppercase tracking-wider text-[#1B54B4] whitespace-nowrap">ADMIN</p>
+              </div>
+              <div id="current-user-avatar-mobile" class="w-8 h-8 rounded-full bg-[#1B54B4] text-white font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
+                A
+              </div>
+              <button onclick="openLoginModal()" title="Login Admin / Panitia" class="p-1.5 rounded-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition shrink-0">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tengah: Global Search Bar Kapsul (Responsif di HP, Tablet, & Desktop) -->
+        <div class="flex items-center flex-1 max-w-full md:max-w-md md:mx-4 lg:mx-6">
+          <div class="relative w-full">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input
+              id="global-search-input"
+              type="text"
+              spellcheck="false"
+              autocomplete="off"
+              oninput="handleGlobalSearch(this.value)"
+              placeholder="Cari huruf awalan nama peserta..."
+              class="w-full bg-[#F3F5F9] hover:bg-slate-200/70 focus:bg-white text-slate-700 text-xs sm:text-sm rounded-full pl-10 pr-4 py-2 sm:py-2.5 outline-none border border-transparent focus:border-brand-500 transition"
+            />
+          </div>
+        </div>
+
+        <!-- Kanan Desktop: Notifikasi, Settings, Nama Admin/Panitia 1 Baris Utuh -->
+        <div class="hidden md:flex items-center gap-2.5 lg:gap-3 shrink-0">
+          <button onclick="switchTab('logs')" title="Riwayat Pengiriman" class="p-2.5 rounded-full text-slate-500 hover:bg-slate-100 relative transition shrink-0">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span id="notif-sent-dot" class="w-2 h-2 rounded-full bg-emerald-500 absolute top-2 right-2 hidden"></span>
+          </button>
+
+          <button id="top-settings-btn" onclick="switchTab('settings')" title="Pengaturan Aplikasi" class="p-2.5 rounded-full text-slate-500 hover:bg-slate-100 transition shrink-0">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+          </button>
+
+          <div class="h-6 w-[1px] bg-slate-200 mx-1"></div>
+
+          <!-- User Info & Switch Account (1 Baris Tanpa Terpotong) -->
+          <div class="flex items-center gap-3 pl-1 shrink-0">
+            <div class="text-right">
+              <p id="current-user-name" class="text-xs lg:text-sm font-bold text-slate-800 leading-tight whitespace-nowrap">Andriana Suherman, S.Kom.</p>
+              <p id="current-user-role" class="text-[10px] font-bold uppercase tracking-wider text-[#1B54B4] whitespace-nowrap mt-0.5">ADMIN</p>
+            </div>
+            <div id="current-user-avatar" class="w-9 h-9 lg:w-10 lg:h-10 rounded-full bg-[#1B54B4] text-white font-bold text-sm flex items-center justify-center shadow-md shadow-blue-900/20 shrink-0">
+              A
+            </div>
+            <button onclick="openLoginModal()" id="btn-switch-account" title="Ganti Akses Admin / Panitia" class="p-2 rounded-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition shrink-0">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- BODY: ASYMMETRIC CURVED SIDEBAR + MAIN WORKSPACE -->
+      <div class="flex-1 flex overflow-hidden relative bg-white">
+
+        <!-- BACKDROP MOBILE/TABLET SIDEBAR -->
+        <div id="mobile-sidebar-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden"></div>
+
+        <!-- CURVED LEFT SIDEBAR (#1B54B4 dengan rounded-tr-[48px]) -->
+        <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-[#1B54B4] text-white rounded-tr-[48px] flex flex-col justify-between p-5 sm:p-6 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0 shadow-xl lg:shadow-none overflow-y-auto">
+          
+          <div>
+            <!-- Tombol Kapsul Putih Utama (Primary CTA) -->
+            <button id="sidebar-cta-upload" onclick="switchTab('studio')" class="w-full bg-white hover:bg-blue-50 text-[#1B54B4] font-bold text-xs sm:text-sm py-3 sm:py-3.5 px-5 rounded-full shadow-lg shadow-blue-950/25 flex items-center justify-center gap-2.5 transition transform active:scale-95 mb-6 sm:mb-8 whitespace-nowrap">
+              <i data-lucide="upload-cloud" class="w-4 h-4 shrink-0"></i>
+              <span>Upload Desain Baru</span>
+            </button>
+
+            <!-- Daftar Navigasi Utama -->
+            <nav class="space-y-1.5">
+              <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition bg-white/15 text-white whitespace-nowrap">
+                <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
+                <span>Dashboard Utama</span>
+              </button>
+
+              <button id="nav-studio" onclick="switchTab('studio')" data-tab="studio" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white transition whitespace-nowrap">
+                <i data-lucide="sliders" class="w-4 h-4 shrink-0"></i>
+                <span>Desain & Live Preview</span>
+              </button>
+
+              <button id="nav-participants" onclick="switchTab('participants')" data-tab="participants" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white transition whitespace-nowrap">
+                <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
+                <span>Data Peserta (Excel)</span>
+              </button>
+
+              <button id="nav-sender" onclick="switchTab('sender')" data-tab="sender" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white transition whitespace-nowrap">
+                <i data-lucide="send" class="w-4 h-4 shrink-0"></i>
+                <span>Kirim Sertifikat</span>
+              </button>
+
+              <button onclick="switchTab('logs')" data-tab="logs" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white transition whitespace-nowrap">
+                <i data-lucide="history" class="w-4 h-4 shrink-0"></i>
+                <span>Riwayat & Status</span>
+              </button>
+
+              <button id="nav-settings" onclick="switchTab('settings')" data-tab="settings" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white transition whitespace-nowrap">
+                <i data-lucide="wrench" class="w-4 h-4 shrink-0"></i>
+                <span>Identitas Aplikasi</span>
+              </button>
+            </nav>
+          </div>
+
+          <!-- Bawah Sidebar: Statistik Pengiriman & Progress -->
+          <div class="pt-6 mt-6 border-t border-white/15 space-y-4">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-blue-200">DETAIL PENGIRIMAN EMAIL</p>
+
+            <div>
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="flex items-center gap-1.5 font-medium text-white">
+                  <i data-lucide="mail-check" class="w-3.5 h-3.5 text-blue-200"></i> Terkirim
+                </span>
+                <span id="sidebar-sent-ratio" class="text-[11px] text-blue-100 font-semibold">0 / 0 Peserta</span>
+              </div>
+              <div class="w-full h-1.5 bg-blue-950/50 rounded-full overflow-hidden">
+                <div id="sidebar-sent-bar" class="h-full bg-white rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="flex items-center gap-1.5 font-medium text-white">
+                  <i data-lucide="clock" class="w-3.5 h-3.5 text-blue-200"></i> Antrean Pending
+                </span>
+                <span id="sidebar-pending-count" class="text-[11px] text-blue-100 font-semibold">0 Peserta</span>
+              </div>
+              <div class="w-full h-1.5 bg-blue-950/50 rounded-full overflow-hidden">
+                <div id="sidebar-pending-bar" class="h-full bg-amber-300 rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <button onclick="switchTab('sender')" class="inline-flex items-center gap-1.5 text-xs font-bold text-white hover:text-blue-200 transition pt-1">
+              <span>Buka Panel Kirim Massal</span>
+              <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </aside>
+
+        <!-- MAIN WORKSPACE AREA (RESPONSIF HP, TABLET, DESKTOP) -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 lg:p-10 bg-white">
+
+          <!-- ==========================================
+               TAB 1: DASHBOARD UTAMA (QUICK ACCESS & ALL PARTICIPANTS)
+               ========================================== -->
+          <section id="tab-dashboard" class="tab-panel space-y-6 sm:space-y-8">
+            <!-- Header Baris Judul -->
+            <div class="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+              <div class="flex items-center gap-2.5 sm:gap-3">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1B54B4]" id="dashboard-main-title">Fikes Certificate Center</h2>
+                <button onclick="switchTab('participants')" title="Tambah Peserta Baru" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1B54B4] hover:bg-blue-800 text-white flex items-center justify-center shadow-md shadow-blue-900/20 transition shrink-0">
+                  <i data-lucide="folder-plus" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </button>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="syncWithBackend()" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-[#F3F5F9] hover:bg-slate-200 text-slate-700 text-xs font-bold transition whitespace-nowrap">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                  <span>Sinkronisasi Database</span>
+                </button>
+                <button onclick="switchTab('sender')" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-[#1B54B4] hover:bg-blue-800 text-white text-xs font-bold shadow-md shadow-blue-900/15 transition whitespace-nowrap">
+                  <i data-lucide="send" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                  <span>Kirim Massal Cepat</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- QUICK ACCESS CARDS (4 FOLDER-STYLE CARDS) -->
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-widest text-slate-700 mb-5">QUICK ACCESS & RINGKASAN SISTEM</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
+                
+                <!-- Card 1: Biru Aktif (Template & Live Preview) -->
+                <div onclick="switchTab('studio')" class="folder-card bg-[#1B54B4] text-white p-5 shadow-xl shadow-blue-900/15 cursor-pointer">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-blue-200 mb-3">DESAIN SERTIFIKAT AKTIF</p>
+                  <div class="flex items-center gap-2 mb-5">
+                    <span class="px-2.5 h-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[11px] font-bold tracking-wide">PDF</span>
+                    <span class="px-2.5 h-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[11px] font-bold tracking-wide">PNG</span>
+                    <span class="px-2.5 h-8 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[11px] font-bold tracking-wide">JPG</span>
+                  </div>
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-blue-200">STUDIO LIVE PREVIEW</p>
+                  <p id="card-template-name" class="text-sm font-bold text-white truncate mt-0.5">Template Standar Fikes</p>
+                </div>
+
+                <!-- Card 2: Total Peserta -->
+                <div onclick="switchTab('participants')" class="folder-card bg-[#F3F5F9] text-slate-800 p-5 cursor-pointer hover:bg-slate-200/70">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">DATABASE PESERTA</p>
+                  <div class="flex items-center justify-between mb-4">
+                    <span id="stat-total-participants" class="text-2xl font-extrabold text-slate-800">0</span>
+                    <span class="w-9 h-9 rounded-xl bg-blue-100 text-[#1B54B4] flex items-center justify-center">
+                      <i data-lucide="users" class="w-5 h-5"></i>
+                    </span>
+                  </div>
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">SUMBER DATA</p>
+                  <p class="text-xs font-bold text-[#1B54B4] mt-0.5">Import Excel & Input Manual</p>
+                </div>
+
+                <!-- Card 3: Terkirim Sukses -->
+                <div onclick="switchTab('logs')" class="folder-card bg-[#F3F5F9] text-slate-800 p-5 cursor-pointer hover:bg-slate-200/70">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">EMAIL TERKIRIM</p>
+                  <div class="flex items-center justify-between mb-4">
+                    <span id="stat-sent-count" class="text-2xl font-extrabold text-emerald-600">0</span>
+                    <span class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                      <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                    </span>
+                  </div>
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">STATUS PENGIRIMAN</p>
+                  <p class="text-xs font-bold text-emerald-600 mt-0.5">Tersimpan di Riwayat Log</p>
+                </div>
+
+                <!-- Card 4: Menunggu Dikirim -->
+                <div onclick="switchTab('sender')" class="folder-card bg-[#F3F5F9] text-slate-800 p-5 cursor-pointer hover:bg-slate-200/70">
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">BELUM TERKIRIM</p>
+                  <div class="flex items-center justify-between mb-4">
+                    <span id="stat-pending-count" class="text-2xl font-extrabold text-amber-600">0</span>
+                    <span class="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+                      <i data-lucide="send" class="w-5 h-5"></i>
+                    </span>
+                  </div>
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">SIAP DIKIRIM MASSAL</p>
+                  <p id="stat-last-activity" class="text-xs font-bold text-slate-600 mt-0.5">Klik untuk mulai kirim</p>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- ALL FILES / DAFTAR SERTIFIKAT PESERTA -->
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-700">DAFTAR SERTIFIKAT PESERTA & AKSI CEPAT</h3>
+                <button onclick="switchTab('participants')" class="text-xs font-bold text-[#1B54B4] hover:underline">Tambah / Import Peserta &rarr;</button>
+              </div>
+
+              <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                <table class="w-full text-center border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+                      <th class="py-3.5 px-4 text-center">NO. SERTIFIKAT</th>
+                      <th class="py-3.5 px-4 text-center">NAMA PESERTA</th>
+                      <th class="py-3.5 px-4 text-center">PARTICIPANT / PERAN</th>
+                      <th class="py-3.5 px-4 text-center">EMAIL TUJUAN</th>
+                      <th class="py-3.5 px-4 text-center">WAKTU KIRIM</th>
+                      <th class="py-3.5 px-4 text-center">STATUS</th>
+                      <th class="py-3.5 px-4 text-center">AKSI</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-participants-tbody" class="divide-y divide-slate-200 text-sm text-slate-700">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               TAB 2: STUDIO DESAIN & LIVE PREVIEW SERTIFIKAT
+               ========================================== -->
+          <section id="tab-studio" class="tab-panel hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-[#1B54B4]">Studio Desain & Live Preview</h2>
+                <p class="text-xs text-slate-500 mt-1">Upload desain sertifikat (PDF, PNG, JPG) dan geser langsung teks pada sertifikat atau gunakan pengatur posisi.</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <label class="cursor-pointer inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-[#F3F5F9] hover:bg-slate-200 text-slate-700 text-xs font-bold transition whitespace-nowrap">
+                  <i data-lucide="file-up" class="w-4 h-4 text-[#1B54B4]"></i>
+                  <span>Upload Desain (PDF/PNG/JPG)</span>
+                  <input type="file" id="template-file-input" accept=".png,.jpg,.jpeg,.pdf" class="hidden" onchange="handleTemplateUpload(event)" />
+                </label>
+
+                <button onclick="resetDefaultTemplate()" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition whitespace-nowrap">
+                  <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                  <span>Reset Default</span>
+                </button>
+
+                <button onclick="saveLayoutSettings()" class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl bg-[#1B54B4] hover:bg-blue-800 text-white text-xs font-bold shadow-md shadow-blue-900/15 transition whitespace-nowrap">
+                  <i data-lucide="save" class="w-4 h-4"></i>
+                  <span>Simpan Tata Letak</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Grid 2 Kolom: Kanvas Live Preview (Kiri/Tengah) & Kontrol Posisi (Kanan) -->
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+
+              <!-- Kolom Kanvas Live Preview (8 Kolom) -->
+              <div class="xl:col-span-8 space-y-4">
+                <div class="bg-[#F3F5F9] rounded-2xl p-3 sm:p-4 border border-slate-200/80">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="px-2.5 py-1 rounded-lg bg-[#1B54B4] text-white text-[11px] font-bold">INTERACTIVE LIVE PREVIEW</span>
+                      <span class="text-xs text-slate-500">Klik/sentuh & tahan teks pada sertifikat untuk menggeser posisi</span>
+                    </div>
+                    <!-- Pilih Peserta untuk Pratinjau -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                      <span class="text-xs font-semibold text-slate-500 whitespace-nowrap">Data Pratinjau:</span>
+                      <select id="preview-participant-select" onchange="handlePreviewParticipantChange(this.value)" class="flex-1 sm:flex-initial bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-700 outline-none">
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Area Stage Canvas -->
+                  <div class="canvas-stage w-full rounded-xl overflow-hidden border border-slate-300 shadow-inner flex items-center justify-center p-2 sm:p-4 bg-slate-200/60">
+                    <canvas id="certificate-canvas" width="1200" height="848" class="w-full h-auto max-h-[540px] object-contain bg-white shadow-lg rounded-lg cursor-move touch-none"></canvas>
+                  </div>
+
+                  <!-- Tombol Download Sampel Hasil Preview -->
+                  <div class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2 border-t border-slate-200/80">
+                    <span id="drag-status-hint" class="text-xs font-medium text-slate-500">Koordinat otomatis tersinkronisasi saat digeser.</span>
+                    <div class="flex items-center gap-2">
+                      <button onclick="downloadCurrentPreviewPNG()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition whitespace-nowrap">
+                        <i data-lucide="image" class="w-3.5 h-3.5 text-[#1B54B4]"></i>
+                        <span>Unduh PNG</span>
+                      </button>
+                      <button onclick="downloadCurrentPreviewPDF()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition whitespace-nowrap">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-rose-600"></i>
+                        <span>Unduh PDF</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Kolom Kontrol Posisi Nomor, Nama, & Participant (4 Kolom) -->
+              <div class="xl:col-span-4 grid grid-cols-1 md:grid-cols-3 xl:grid-cols-1 gap-4">
+
+                <!-- 1. Kontrol Posisi Nomor Sertifikat -->
+                <div class="bg-[#F3F5F9] rounded-2xl p-4 border border-slate-200/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#1B54B4] flex items-center gap-1.5">
+                      <i data-lucide="hash" class="w-4 h-4"></i> 1. Posisi No. Sertifikat
+                    </h4>
+                    <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer">
+                      <input type="checkbox" id="chk-show-certno" checked onchange="updateLayoutFromInputs()" class="rounded text-[#1B54B4]" />
+                      Tampilkan
+                    </label>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="text-[11px] font-semibold text-slate-500 flex justify-between">
+                        <span>Horizontal (X)</span>
+                        <span id="lbl-certno-x">50%</span>
+                      </label>
+                      <input type="range" id="rng-certno-x" min="5" max="95" value="50" oninput="updateLayoutFromInputs()" class="w-full accent-[#1B54B4]" />
+                    </div>
+                    <div>
+                      <label class="text-[11px] font-semibold text-slate-500 flex justify-between">
+                        <span>Vertikal (Y)</span>
+                        <span id="lbl-certno-y">29%</span>
+                      </label>
+                      <input type="range" id="rng-certno-y" min="5" max="95" value="29" oninput="updateLayoutFromInputs()" class="w-full accent-[#1B54B4]" />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-2">
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Ukuran Font</label>
+                      <input type="number" id="num-certno-size" value="22" min="10" max="80" oninput="updateLayoutFromInputs()" class="w-full mt-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold" />
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Font</label>
+                      <select id="sel-certno-font" onchange="updateLayoutFromInputs()" class="w-full mt-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
+                        <option value="Plus Jakarta Sans">Jakarta Sans</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Cinzel">Cinzel</option>
+                        <option value="Playfair Display">Playfair</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Warna</label>
+                      <input type="color" id="col-certno-color" value="#334155" oninput="updateLayoutFromInputs()" class="w-full h-8 mt-1 bg-white border border-slate-200 rounded-lg p-0.5 cursor-pointer" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Kontrol Posisi Nama Peserta -->
+                <div class="bg-[#F3F5F9] rounded-2xl p-4 border border-slate-200/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#1B54B4] flex items-center gap-1.5">
+                      <i data-lucide="user-check" class="w-4 h-4"></i> 2. Posisi Nama Peserta
+                    </h4>
+                    <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer">
+                      <input type="checkbox" id="chk-show-name" checked onchange="updateLayoutFromInputs()" class="rounded text-[#1B54B4]" />
+                      Tampilkan
+                    </label>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="text-[11px] font-semibold text-slate-500 flex justify-between">
+                        <span>Horizontal (X)</span>
+                        <span id="lbl-name-x">50%</span>
+                      </label>
+                      <input type="range" id="rng-name-x" min="5" max="95" value="50" oninput="updateLayoutFromInputs()" class="w-full accent-[#1B54B4]" />
+                    </div>
+                    <div>
+                      <label class="text-[11px] font-semibold text-slate-500 flex justify-between">
+                        <span>Vertikal (Y)</span>
+                        <span id="lbl-name-y">48%</span>
+                      </label>
+                      <input type="range" id="rng-name-y" min="5" max="95" value="48" oninput="updateLayoutFromInputs()" class="w-full accent-[#1B54B4]" />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-2">
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Ukuran Font</label>
+                      <input type="number" id="num-name-size" value="52" min="14" max="120" oninput="updateLayoutFromInputs()" class="w-full mt-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold" />
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Font</label>
+                      <select id="sel-name-font" onchange="updateLayoutFromInputs()" class="w-full mt-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
+                        <option value="Playfair Display">Playfair</option>
+                        <option value="Great Vibes">Great Vibes</option>
+                        <option value="Cinzel">Cinzel</option>
+                        <option value="Plus Jakarta Sans">Jakarta Sans</option>
+                        <option value="Montserrat">Montserrat</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Warna</label>
+                      <input type="color" id="col-name-color" value="#1B54B4" oninput="updateLayoutFromInputs()" class="w-full h-8 mt-1 bg-white border border-slate-200 rounded-lg p-0.5 cursor-pointer" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Kontrol Posisi Peran / Participant -->
+                <div class="bg-[#F3F5F9] rounded-2xl p-4 border border-slate-200/80 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#1B54B4] flex items-center gap-1.5">
+                      <i data-lucide="award" class="w-4 h-4"></i> 3. Posisi Participant / Peran
+                    </h4>
+                    <label class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 cursor-pointer">
+                      <input type="checkbox" id="chk-show-role" checked onchange="updateLayoutFromInputs()" class="rounded text-[#1B54B4]" />
+                      Tampilkan
+                    </label>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="text-[11px] font-semibold text-slate-500 flex justify-between">
+                        <span>Horizontal (X)</span>
+                        <span id="lbl-role-x">50%</span>
+                      </label>
+                      <input type="range" id="rng-role-x" min="5" max="95" value="50" oninput="updateLayoutFromInputs()" class="w-full accent-[#1B54B4]" />
+                    </div>
+                    <div>
+                      <label class="text-[11px] font-semibold text-slate-500 flex justify-between">
+                        <span>Vertikal (Y)</span>
+                        <span id="lbl-role-y">60%</span>
+                      </label>
+                      <input type="range" id="rng-role-y" min="5" max="95" value="60" oninput="updateLayoutFromInputs()" class="w-full accent-[#1B54B4]" />
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-2">
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Ukuran Font</label>
+                      <input type="number" id="num-role-size" value="26" min="12" max="90" oninput="updateLayoutFromInputs()" class="w-full mt-1 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold" />
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Font</label>
+                      <select id="sel-role-font" onchange="updateLayoutFromInputs()" class="w-full mt-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs font-semibold">
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Plus Jakarta Sans">Jakarta Sans</option>
+                        <option value="Cinzel">Cinzel</option>
+                        <option value="Playfair Display">Playfair</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="text-[10px] font-bold text-slate-500">Warna</label>
+                      <input type="color" id="col-role-color" value="#0F2E66" oninput="updateLayoutFromInputs()" class="w-full h-8 mt-1 bg-white border border-slate-200 rounded-lg p-0.5 cursor-pointer" />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               TAB 3: DATA PESERTA (IMPORT EXCEL & INPUT MANUAL)
+               ========================================== -->
+          <section id="tab-participants" class="tab-panel hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-[#1B54B4]">Manajemen Data Peserta</h2>
+                <p class="text-xs text-slate-500 mt-1">Impor daftar nama, peran, nomor sertifikat, dan alamat email dari file Excel (.xlsx / .csv) atau tambahkan manual.</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="downloadExcelTemplate()" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition whitespace-nowrap">
+                  <i data-lucide="download" class="w-4 h-4 text-[#1B54B4]"></i>
+                  <span>Format Excel</span>
+                </button>
+
+                <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-900/10 transition whitespace-nowrap">
+                  <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                  <span>Import dari Excel (.xlsx/.csv)</span>
+                  <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleExcelImport(event)" />
+                </label>
+
+                <button onclick="clearAllParticipants()" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition whitespace-nowrap">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  <span>Kosongkan Data</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Form Input Peserta Manual -->
+            <div class="bg-[#F3F5F9] rounded-2xl p-4 sm:p-5 border border-slate-200/80">
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#1B54B4] mb-3 flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                <span>Tambah Peserta Secara Manual</span>
+              </h3>
+              <form onsubmit="handleAddParticipantManual(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div>
+                  <label class="text-[11px] font-bold text-slate-600">No. Sertifikat</label>
+                  <input type="text" id="inp-manual-certno" required placeholder="001/FIKES-CERT/XI/2026" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-[#1B54B4]" />
+                </div>
+                <div>
+                  <label class="text-[11px] font-bold text-slate-600">Nama Lengkap & Gelar</label>
+                  <input type="text" id="inp-manual-name" required placeholder="Masukkan nama peserta" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-[#1B54B4]" />
+                </div>
+                <div>
+                  <label class="text-[11px] font-bold text-slate-600">Status / Peran (Participant)</label>
+                  <input type="text" id="inp-manual-role" required value="PARTICIPANT" placeholder="PARTICIPANT / PESERTA" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-[#1B54B4]" />
+                </div>
+                <div>
+                  <label class="text-[11px] font-bold text-slate-600">Alamat Email Peserta</label>
+                  <input type="email" id="inp-manual-email" required placeholder="nama@email.com" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold outline-none focus:border-[#1B54B4]" />
+                </div>
+                <div class="flex items-end">
+                  <button type="submit" class="w-full bg-[#1B54B4] hover:bg-blue-800 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md shadow-blue-900/15 flex items-center justify-center gap-2 transition whitespace-nowrap">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Simpan Peserta</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Tabel Seluruh Peserta (Rata Tengah / Center & 1 Baris) -->
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+              <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <span id="participants-table-counter" class="text-xs font-bold text-slate-600">Total: 0 Peserta</span>
+                <button onclick="autoGenerateCertNumbers()" class="text-xs font-bold text-[#1B54B4] hover:underline flex items-center gap-1">
+                  <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
+                  <span>Generate Nomor Sertifikat Otomatis</span>
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-center border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+                      <th class="py-3.5 px-4 text-center whitespace-nowrap">NO. SERTIFIKAT</th>
+                      <th class="py-3.5 px-4 text-center whitespace-nowrap">NAMA PESERTA</th>
+                      <th class="py-3.5 px-4 text-center whitespace-nowrap">PARTICIPANT / PERAN</th>
+                      <th class="py-3.5 px-4 text-center whitespace-nowrap">ALAMAT EMAIL</th>
+                      <th class="py-3.5 px-4 text-center whitespace-nowrap">STATUS EMAIL</th>
+                      <th class="py-3.5 px-4 text-center whitespace-nowrap">AKSI</th>
+                    </tr>
+                  </thead>
+                  <tbody id="full-participants-tbody" class="divide-y divide-slate-200 text-sm text-slate-700">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               TAB 4: KIRIM SERTIFIKAT (SATUAN & MASSAL OTOMATIS)
+               ========================================== -->
+          <section id="tab-sender" class="tab-panel hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-[#1B54B4]">Pusat Pengiriman Sertifikat (Satuan & Massal)</h2>
+                <p class="text-xs text-slate-500 mt-1">Kirim sertifikat otomatis ke seluruh email peserta sekaligus tanpa perlu klik satu per satu, atau kirim per individu.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <!-- Kiri: Konfigurasi Pesan Email (5 Kolom) -->
+              <div class="lg:col-span-5 bg-[#F3F5F9] rounded-2xl p-4 sm:p-5 border border-slate-200/80 space-y-4">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#1B54B4] flex items-center gap-2">
+                  <i data-lucide="mail" class="w-4 h-4"></i>
+                  <span>Template Email Pengiriman</span>
+                </h3>
+
+                <div>
+                  <label class="text-xs font-bold text-slate-600">Subjek Email</label>
+                  <input type="text" id="email-subject-input" value="E-Sertifikat Resmi - {app_name}" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none focus:border-[#1B54B4]" />
+                </div>
+
+                <div>
+                  <label class="text-xs font-bold text-slate-600">Isi Pesan Email</label>
+                  <textarea id="email-body-input" rows="5" class="w-full mt-1 bg-white border border-slate-200 rounded-xl p-3.5 text-xs font-medium outline-none focus:border-[#1B54B4]">Halo {nama},
+
+Terima kasih atas partisipasi Anda sebagai {peran}. Bersama email ini kami lampirkan E-Sertifikat resmi Anda dengan Nomor: {no_sertifikat}.
+
+Salam hangat,
+Panitia {app_name}</textarea>
+                  <p class="text-[11px] text-slate-400 mt-1">Tag dinamis: <code>{nama}</code>, <code>{peran}</code>, <code>{no_sertifikat}</code>, <code>{app_name}</code></p>
+                </div>
+
+                <div>
+                  <label class="text-xs font-bold text-slate-600">Format Lampiran Sertifikat</label>
+                  <select id="email-attachment-format" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-700 outline-none">
+                    <option value="PDF">Dokumen PDF Standar Cetak (.pdf)</option>
+                    <option value="PNG">Gambar Resolusi Tinggi (.png)</option>
+                  </select>
+                </div>
+
+                <button onclick="saveLayoutSettings()" class="w-full bg-white hover:bg-slate-100 text-[#1B54B4] border border-brand-100 font-bold text-xs py-2.5 rounded-xl transition">
+                  Simpan Template Email
+                </button>
+              </div>
+
+              <!-- Kanan: Panel Eksekusi Massal & Progress Real-Time (7 Kolom) -->
+              <div class="lg:col-span-7 space-y-5">
+                <div class="bg-[#1B54B4] text-white rounded-2xl p-5 sm:p-6 shadow-xl shadow-blue-900/15 space-y-4">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-widest text-blue-200">BULK AUTOMATION ENGINE</span>
+                      <h3 class="text-base sm:text-lg font-extrabold mt-0.5">Pengiriman Sertifikat Massal Otomatis</h3>
+                    </div>
+                    <span id="bulk-status-pill" class="px-3 py-1 rounded-full bg-white/15 text-xs font-bold whitespace-nowrap">Siap Mengirim</span>
+                  </div>
+
+                  <p class="text-xs text-blue-100 leading-relaxed">
+                    Sistem akan me-render sertifikat masing-masing peserta sesuai posisi Nomor, Nama, dan Participant pada <strong>Live Preview</strong>, lalu mengirimkannya ke alamat email peserta secara berurutan.
+                  </p>
+
+                  <!-- Progress Bar Massal -->
+                  <div class="bg-blue-950/40 rounded-xl p-4 space-y-2">
+                    <div class="flex justify-between text-xs font-bold">
+                      <span id="bulk-progress-label">Progress Antrean: 0%</span>
+                      <span id="bulk-progress-numbers">0 / 0 Terkirim</span>
+                    </div>
+                    <div class="w-full h-3 bg-blue-950 rounded-full overflow-hidden">
+                      <div id="bulk-progress-bar" class="h-full bg-emerald-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="bulk-current-target" class="text-[11px] text-blue-200 truncate">Menunggu perintah pengiriman...</p>
+                  </div>
+
+                  <!-- Tombol Eksekusi Massal -->
+                  <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
+                    <button id="btn-start-bulk-pending" onclick="startBulkSend(false)" class="px-4 sm:px-5 py-3 rounded-xl bg-white hover:bg-blue-50 text-[#1B54B4] font-extrabold text-xs shadow-lg flex items-center gap-2 transition whitespace-nowrap">
+                      <i data-lucide="send" class="w-4 h-4"></i>
+                      <span>Kirim Semua yang Belum Terkirim</span>
+                    </button>
+
+                    <button id="btn-start-bulk-all" onclick="startBulkSend(true)" class="px-4 py-3 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-bold text-xs flex items-center gap-2 border border-white/15 transition whitespace-nowrap">
+                      <i data-lucide="repeat" class="w-4 h-4"></i>
+                      <span>Kirim Ulang Seluruh Peserta</span>
+                    </button>
+
+                    <button id="btn-stop-bulk" onclick="stopBulkSend()" class="hidden px-4 py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center gap-2 transition whitespace-nowrap">
+                      <i data-lucide="octagon" class="w-4 h-4"></i>
+                      <span>Hentikan Pengiriman</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Daftar Antrean Peserta & Tombol Kirim Satuan -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                  <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600">Daftar Pengiriman Per Peserta (Satuan)</h4>
+                  </div>
+                  <div class="max-h-72 overflow-y-auto overflow-x-auto">
+                    <table class="w-full text-center border-collapse">
+                      <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50/60 text-[10px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+                          <th class="py-2.5 px-4 text-center">NAMA PESERTA & EMAIL</th>
+                          <th class="py-2.5 px-4 text-center">STATUS</th>
+                          <th class="py-2.5 px-4 text-center">AKSI</th>
+                        </tr>
+                      </thead>
+                      <tbody id="sender-queue-tbody" class="divide-y divide-slate-200 text-xs text-slate-700">
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               TAB 5: RIWAYAT PENGIRIMAN & STATUS EMAIL
+               ========================================== -->
+          <section id="tab-logs" class="tab-panel hidden space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-[#1B54B4]">Riwayat Pengiriman & Status Email</h2>
+                <p class="text-xs text-slate-500 mt-1">Catatan waktu pengiriman sertifikat, alamat email tujuan, dan status keberhasilan pengiriman.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="exportLogsToExcel()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#F3F5F9] hover:bg-slate-200 text-slate-700 text-xs font-bold transition whitespace-nowrap">
+                  <i data-lucide="file-down" class="w-4 h-4 text-[#1B54B4]"></i>
+                  <span>Export Log ke Excel</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-center border-collapse">
+                  <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap">
+                      <th class="py-3.5 px-4 text-center">WAKTU PENGIRIMAN</th>
+                      <th class="py-3.5 px-4 text-center">NO. SERTIFIKAT</th>
+                      <th class="py-3.5 px-4 text-center">NAMA PESERTA</th>
+                      <th class="py-3.5 px-4 text-center">EMAIL TUJUAN</th>
+                      <th class="py-3.5 px-4 text-center">STATUS</th>
+                      <th class="py-3.5 px-4 text-center">KETERANGAN</th>
+                    </tr>
+                  </thead>
+                  <tbody id="logs-history-tbody" class="divide-y divide-slate-200 text-sm text-slate-700">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==========================================
+               TAB 6: PENGATURAN IDENTITAS APLIKASI & NAMA ADMIN/PANITIA
+               ========================================== -->
+          <section id="tab-settings" class="tab-panel hidden space-y-6">
+            <div class="border-b border-slate-100 pb-4">
+              <h2 class="text-xl sm:text-2xl font-extrabold text-[#1B54B4]">Pengaturan Identitas Aplikasi & Pengelola</h2>
+              <p class="text-xs text-slate-500 mt-1">Kelola Nama Aplikasi, Logo Aplikasi, Format Penomoran Sertifikat, serta Nama Lengkap Admin & Panitia.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div class="lg:col-span-7 bg-[#F3F5F9] rounded-2xl p-5 sm:p-6 border border-slate-200/80 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="text-xs font-bold text-slate-700">Nama Aplikasi</label>
+                    <input type="text" id="set-app-name" value="Fikes Certificate Center" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-800 outline-none focus:border-[#1B54B4]" />
+                  </div>
+                  <div>
+                    <label class="text-xs font-bold text-slate-700">Subtitle / Instansi</label>
+                    <input type="text" id="set-app-subtitle" value="Fakultas Ilmu Kesehatan - Sistem E-Sertifikat" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-600 outline-none focus:border-[#1B54B4]" />
+                  </div>
+                </div>
+
+                <!-- Pengaturan Nama Admin & Panitia (Tampil 1 Baris di Header) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  <div>
+                    <label class="text-xs font-bold text-slate-700">Nama Lengkap Admin</label>
+                    <input type="text" id="set-admin-fullname" value="Andriana Suherman, S.Kom." placeholder="Contoh: Andriana Suherman, S.Kom." class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#1B54B4]" />
+                  </div>
+                  <div>
+                    <label class="text-xs font-bold text-slate-700">Nama Lengkap Panitia</label>
+                    <input type="text" id="set-panitia-fullname" value="Panitia Pelaksana Fikes" placeholder="Contoh: Ns. Hendra Wijaya, S.Kep." class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 outline-none focus:border-[#1B54B4]" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="text-xs font-bold text-slate-700">Upload Logo Aplikasi Baru (PNG/JPG/SVG)</label>
+                  <div class="flex flex-wrap items-center gap-3 mt-1.5">
+                    <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-[#1B54B4] shadow-sm transition whitespace-nowrap">
+                      <i data-lucide="image-plus" class="w-4 h-4"></i>
+                      <span>Pilih File Logo</span>
+                      <input type="file" accept="image/*" class="hidden" onchange="handleLogoUpload(event)" />
+                    </label>
+                    <input type="text" id="set-app-logo-url" placeholder="Atau tempel URL gambar logo di sini..." class="flex-1 min-w-[200px] bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#1B54B4]" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="text-xs font-bold text-slate-700">Pola Penomoran Sertifikat Otomatis</label>
+                  <input type="text" id="set-cert-pattern" value="{NO}/FIKES-CERT/XI/2026" class="w-full mt-1 bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-[#1B54B4]" />
+                  <p class="text-[11px] text-slate-400 mt-1">Gunakan <code>{NO}</code> untuk nomor urut otomatis 3 digit (001, 002, dst).</p>
+                </div>
+
+                <div class="pt-2">
+                  <button onclick="saveIdentitySettings()" class="px-6 py-3 rounded-xl bg-[#1B54B4] hover:bg-blue-800 text-white font-bold text-xs shadow-lg shadow-blue-900/15 flex items-center gap-2 transition">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>Simpan Perubahan Identitas Aplikasi</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Preview Kartu Brand -->
+              <div class="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 flex flex-col justify-between space-y-4">
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">PRATINJAU HEADER APLIKASI</span>
+                  <div class="mt-4 p-4 sm:p-5 rounded-2xl bg-white flex items-center gap-4 border border-slate-200 shadow-sm">
+                    <img id="preview-settings-logo" src="" alt="Preview Logo" class="w-12 h-12 sm:w-14 sm:h-14 object-contain bg-transparent shrink-0" />
+                    <div class="min-w-0">
+                      <h4 id="preview-settings-name" class="text-base sm:text-lg font-extrabold text-[#1B54B4] truncate">Fikes Certificate Center</h4>
+                      <p id="preview-settings-subtitle" class="text-xs text-slate-500 truncate">Fakultas Ilmu Kesehatan - Sistem E-Sertifikat</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-blue-50 border border-blue-100 text-xs text-slate-600 space-y-1">
+                  <p class="font-bold text-[#1B54B4]">Informasi Sistem Akses:</p>
+                  <p>Sistem ini dikhususkan bagi <strong>Admin</strong> dan <strong>Panitia</strong>. Peserta menerima sertifikat langsung melalui email masing-masing tanpa perlu login.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL PREVIEW SERTIFIKAT INDIVIDU
+       ========================================== -->
+  <div id="modal-single-preview" class="fixed inset-0 bg-slate-900/70 z-[1000000] hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="min-w-0">
+          <h3 id="modal-preview-title" class="text-base sm:text-lg font-extrabold text-[#1B54B4] truncate">Pratinjau Sertifikat Peserta</h3>
+          <p id="modal-preview-subtitle" class="text-xs text-slate-400 truncate"></p>
+        </div>
+        <button onclick="closeSinglePreviewModal()" class="p-2 rounded-full hover:bg-slate-100 text-slate-500 shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="bg-slate-100 rounded-2xl p-2 sm:p-3 flex items-center justify-center">
+        <img id="modal-preview-img" src="" alt="Sertifikat" class="max-h-[58vh] w-auto rounded-lg shadow-md object-contain" />
+      </div>
+
+      <div class="flex flex-wrap items-center justify-end gap-2 pt-2">
+        <button id="modal-btn-download-pdf" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i> Unduh PDF
+        </button>
+        <button id="modal-btn-send-email" class="px-5 py-2.5 rounded-xl bg-[#1B54B4] hover:bg-blue-800 text-white text-xs font-bold flex items-center gap-2 shadow-md">
+          <i data-lucide="send" class="w-4 h-4"></i> Kirim ke Email Peserta Ini
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL LOGIN (KHUSUS ADMIN & PANITIA)
+       ========================================== -->
+  <div id="modal-login" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-[1000001] hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 border border-slate-100">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <img id="login-modal-logo" src="" alt="Logo" class="w-11 h-11 object-contain bg-transparent shrink-0" />
+          <div class="min-w-0">
+            <h3 class="text-lg font-extrabold text-[#1B54B4] truncate">Login Admin & Panitia</h3>
+            <p id="login-modal-appname" class="text-xs text-slate-400 truncate">Fikes Certificate Center</p>
+          </div>
+        </div>
+        <button onclick="closeLoginModal()" class="p-2 rounded-full hover:bg-slate-100 text-slate-400 shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="text-xs font-bold text-slate-600">Username</label>
+          <input type="text" id="login-username" required placeholder="Masukkan username Admin / Panitia" class="w-full mt-1 bg-[#F3F5F9] border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold outline-none focus:bg-white focus:border-[#1B54B4]" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-slate-600">Password</label>
+          <input type="password" id="login-password" required placeholder="Masukkan password" class="w-full mt-1 bg-[#F3F5F9] border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold outline-none focus:bg-white focus:border-[#1B54B4]" />
+        </div>
+
+        <button type="submit" class="w-full bg-[#1B54B4] hover:bg-blue-800 text-white font-bold text-sm py-3 rounded-xl shadow-lg shadow-blue-900/20 transition">
+          Masuk Sekarang
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast-container" class="fixed bottom-4 right-4 left-4 sm:left-auto z-[1000005] space-y-2 flex flex-col items-end pointer-events-none"></div>
+
+  <!-- ==========================================
+       SCRIPT LOGIKA APLIKASI UTAMA (PRODUCTION READY - TANPA DATA DUMMY)
+       ========================================== -->
+  <script>
+    // KONFIGURASI URL DEPLOY GOOGLE APPS SCRIPT (GAS)
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbx3ZoWApdFI4QmnthNLNsJrfKBIimEHcqTJAGkRNr3SlwkrasNKb3ygd9eO8kQF6GGc/exec";
+
+    function isGasConfigured() {
+      return Boolean(GAS_URL && GAS_URL.startsWith('https://script.google.com/'));
+    }
+
+    // Konfigurasi Worker PDF.js
+    if (window['pdfjsLib']) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    // Logo Default SVG Data URI (Menyatu dengan Background Putih Tanpa Kotak Bingkai)
+    const DEFAULT_LOGO_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+        <path d="M32 6L56 48H8L32 6Z" fill="#1B54B4"/>
+        <path d="M21 26L43 26L56 48H8L21 26Z" fill="#2563EB"/>
+        <circle cx="32" cy="36" r="6" fill="#FFFFFF"/>
+      </svg>
+    `);
+
+    // State Global Aplikasi (Bersih Tanpa Data Dummy)
+    let appState = {
+      currentUser: {
+        username: 'admin',
+        name: 'Andriana Suherman, S.Kom.',
+        role: 'ADMIN'
+      },
+      settings: {
+        appName: 'Fikes Certificate Center',
+        appSubtitle: 'Fakultas Ilmu Kesehatan - Sistem E-Sertifikat',
+        adminFullName: 'Andriana Suherman, S.Kom.',
+        panitiaFullName: 'Panitia Pelaksana Fikes',
+        appLogo: DEFAULT_LOGO_SVG,
+        certPattern: '{NO}/FIKES-CERT/XI/2026',
+        templateName: 'Template Standar Fikes',
+        templateBgDataUrl: null,
+        emailSubject: 'E-Sertifikat Resmi - {app_name}',
+        emailBody: 'Halo {nama},\n\nTerima kasih atas partisipasi Anda sebagai {peran}. Bersama email ini kami lampirkan E-Sertifikat resmi Anda dengan Nomor: {no_sertifikat}.\n\nSalam hangat,\nPanitia {app_name}',
+        layout: {
+          certNo: { show: true, x: 50, y: 29, size: 22, font: 'Plus Jakarta Sans', color: '#334155' },
+          name:   { show: true, x: 50, y: 48, size: 52, font: 'Playfair Display', color: '#1B54B4' },
+          role:   { show: true, x: 50, y: 60, size: 26, font: 'Montserrat', color: '#0F2E66' }
+        }
+      },
+      participants: [],
+      logs: [],
+      selectedPreviewParticipantId: '',
+      searchQuery: '',
+      isBulkRunning: false
+    };
+
+    // Variabel Image Objek untuk Background Canvas
+    let bgImageObj = new Image();
+    let isBgLoaded = false;
+    let draggingElementKey = null; // 'certNo' | 'name' | 'role'
+
+    // ==========================================
+    // INISIALISASI SAAT HALAMAN DIMUAT
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadSavedLocalState();
+      generateDefaultCertificateBg();
+      applyBrandingToUI();
+      applyRolePermissions();
+      syncAllTablesAndStats();
+      initCanvasDragEvents();
+
+      if (isGasConfigured()) {
+        syncWithBackend(true);
+      }
+    });
+
+    function saveStateToLocal() {
+      try {
+        localStorage.setItem('fikes_cert_prod_state', JSON.stringify({
+          currentUser: appState.currentUser,
+          settings: appState.settings,
+          participants: appState.participants,
+          logs: appState.logs
+        }));
+      } catch (e) {
+        console.warn('Penyimpanan lokal penuh, melewati cache gambar besar.');
+      }
+    }
+
+    function loadSavedLocalState() {
+      try {
+        const raw = localStorage.getItem('fikes_cert_prod_state');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.currentUser) appState.currentUser = parsed.currentUser;
+          if (parsed.settings) appState.settings = { ...appState.settings, ...parsed.settings };
+          if (Array.isArray(parsed.participants)) appState.participants = parsed.participants;
+          if (Array.isArray(parsed.logs)) appState.logs = parsed.logs;
+        }
+      } catch (e) {
+        console.warn('Gagal memuat state lokal:', e);
+      }
+    }
+
+    // ==========================================
+    // PEMBUATAN DESAIN SERTIFIKAT DEFAULT (ELEGAN)
+    // ==========================================
+    function generateDefaultCertificateBg() {
+      if (appState.settings.templateBgDataUrl) {
+        bgImageObj.onload = () => {
+          isBgLoaded = true;
+          renderCertificateCanvas();
+        };
+        bgImageObj.src = appState.settings.templateBgDataUrl;
+        return;
+      }
+
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = 1200;
+      offCanvas.height = 848;
+      const ctx = offCanvas.getContext('2d');
+
+      // Latar Putih Bersih
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, 1200, 848);
+
+      // Ornamen Sudut Biru Royal & Emas
+      ctx.fillStyle = '#1B54B4';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(280, 0);
+      ctx.lineTo(0, 280);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#D97706';
+      ctx.beginPath();
+      ctx.moveTo(0, 230);
+      ctx.lineTo(230, 0);
+      ctx.lineTo(280, 0);
+      ctx.lineTo(0, 280);
+      ctx.closePath();
+      ctx.fill();
+
+      // Sudut Kanan Bawah
+      ctx.fillStyle = '#1B54B4';
+      ctx.beginPath();
+      ctx.moveTo(1200, 848);
+      ctx.lineTo(920, 848);
+      ctx.lineTo(1200, 568);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#D97706';
+      ctx.beginPath();
+      ctx.moveTo(1200, 618);
+      ctx.lineTo(970, 848);
+      ctx.lineTo(920, 848);
+      ctx.lineTo(1200, 568);
+      ctx.closePath();
+      ctx.fill();
+
+      // Bingkai Dalam Ganda
+      ctx.strokeStyle = '#1B54B4';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(44, 44, 1112, 760);
+
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(56, 56, 1088, 736);
+
+      // Judul Statis Template
+      ctx.fillStyle = '#1B54B4';
+      ctx.font = '800 22px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(appState.settings.appName.toUpperCase(), 600, 130);
+
+      ctx.fillStyle = '#0F2E66';
+      ctx.font = '700 46px "Cinzel", serif';
+      ctx.fillText('CERTIFICATE OF APPRECIATION', 600, 195);
+
+      ctx.fillStyle = '#64748B';
+      ctx.font = '600 16px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('NOMOR SERTIFIKAT:', 600, 222);
+
+      ctx.fillStyle = '#475569';
+      ctx.font = '500 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Sertifikat ini diberikan dengan bangga kepada:', 600, 330);
+
+      // Garis Bawah Nama
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(300, 435);
+      ctx.lineTo(900, 435);
+      ctx.stroke();
+
+      ctx.fillStyle = '#475569';
+      ctx.font = '500 19px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Atas dedikasi dan partisipasi aktif sebagai:', 600, 470);
+
+      ctx.fillStyle = '#334155';
+      ctx.font = '500 17px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Dalam Kegiatan Resmi Fakultas Ilmu Kesehatan', 600, 565);
+
+      // Tanda Tangan Dekoratif
+      ctx.fillStyle = '#1E293B';
+      ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Dekan Fakultas Ilmu Kesehatan', 360, 670);
+      ctx.fillText('Ketua Panitia Pelaksana', 840, 670);
+
+      ctx.strokeStyle = '#64748B';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(240, 745);
+      ctx.lineTo(480, 745);
+      ctx.moveTo(720, 745);
+      ctx.lineTo(960, 745);
+      ctx.stroke();
+
+      // Badge Emas Tengah
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath();
+      ctx.arc(600, 710, 42, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#FEF3C7';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '700 12px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('FIKES', 600, 706);
+      ctx.fillText('VERIFIED', 600, 722);
+
+      const dataUrl = offCanvas.toDataURL('image/png');
+      bgImageObj.onload = () => {
+        isBgLoaded = true;
+        renderCertificateCanvas();
+      };
+      bgImageObj.src = dataUrl;
+    }
+
+    function resetDefaultTemplate() {
+      appState.settings.templateBgDataUrl = null;
+      appState.settings.templateName = 'Template Standar Fikes';
+      appState.settings.layout = {
+        certNo: { show: true, x: 50, y: 29, size: 22, font: 'Plus Jakarta Sans', color: '#334155' },
+        name:   { show: true, x: 50, y: 48, size: 52, font: 'Playfair Display', color: '#1B54B4' },
+        role:   { show: true, x: 50, y: 60, size: 26, font: 'Montserrat', color: '#0F2E66' }
+      };
+      syncLayoutInputsFromState();
+      generateDefaultCertificateBg();
+      saveStateToLocal();
+      showToast('Template dikembalikan ke desain standar Fikes.', 'info');
+    }
+
+    // ==========================================
+    // UPLOAD DESAIN SERTIFIKAT (PDF, PNG, JPG)
+    // ==========================================
+    async function handleTemplateUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const fileName = file.name;
+      const ext = fileName.split('.').pop().toLowerCase();
+      showToast(`Memproses desain "${fileName}"...`, 'info');
+
+      if (ext === 'pdf') {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const page = await pdf.getPage(1);
+          const viewport = page.getViewport({ scale: 2.0 });
+
+          const tempCanvas = document.createElement('canvas');
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCanvas.width = 1200;
+          tempCanvas.height = 848;
+
+          const renderCanvas = document.createElement('canvas');
+          renderCanvas.width = viewport.width;
+          renderCanvas.height = viewport.height;
+          await page.render({ canvasContext: renderCanvas.getContext('2d'), viewport }).promise;
+
+          tempCtx.fillStyle = '#FFFFFF';
+          tempCtx.fillRect(0, 0, 1200, 848);
+          tempCtx.drawImage(renderCanvas, 0, 0, 1200, 848);
+
+          const dataUrl = tempCanvas.toDataURL('image/png', 0.92);
+          applyNewTemplateDataUrl(dataUrl, fileName);
+          showToast('Desain PDF berhasil dikonversi ke Live Preview!', 'success');
+        } catch (err) {
+          console.error(err);
+          showToast('Gagal membaca file PDF. Pastikan file tidak terkunci.', 'error');
+        }
+      } else if (['png', 'jpg', 'jpeg'].includes(ext)) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          applyNewTemplateDataUrl(e.target.result, fileName);
+          showToast('Desain gambar berhasil dimuat ke Live Preview!', 'success');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        showToast('Format tidak didukung. Pilih PDF, PNG, atau JPG.', 'error');
+      }
+    }
+
+    function applyNewTemplateDataUrl(dataUrl, fileName) {
+      appState.settings.templateBgDataUrl = dataUrl;
+      appState.settings.templateName = fileName;
+      document.getElementById('card-template-name').textContent = fileName;
+      bgImageObj.onload = () => {
+        isBgLoaded = true;
+        renderCertificateCanvas();
+      };
+      bgImageObj.src = dataUrl;
+      saveStateToLocal();
+    }
+
+    // ==========================================
+    // RENDER LIVE PREVIEW & DRAG-AND-DROP POSISI
+    // ==========================================
+    function getSampleParticipant() {
+      const found = appState.participants.find(p => p.id === appState.selectedPreviewParticipantId);
+      if (found) return found;
+      if (appState.participants.length > 0) return appState.participants[0];
+      return {
+        certNo: appState.settings.certPattern.replace('{NO}', '001'),
+        name: '[ Nama Peserta ]',
+        role: 'PARTICIPANT'
+      };
+    }
+
+    function renderCertificateCanvas(targetParticipant = null, targetCanvas = null) {
+      const canvas = targetCanvas || document.getElementById('certificate-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const p = targetParticipant || getSampleParticipant();
+      const layout = appState.settings.layout;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Gambar Latar Sertifikat
+      if (isBgLoaded && bgImageObj.src) {
+        ctx.drawImage(bgImageObj, 0, 0, canvas.width, canvas.height);
+      } else {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // Fungsi Pembantu Gambar Elemen Teks
+      const drawField = (cfg, textValue, keyName) => {
+        if (!cfg.show || !textValue) return;
+        const posX = (cfg.x / 100) * canvas.width;
+        const posY = (cfg.y / 100) * canvas.height;
+
+        ctx.save();
+        ctx.font = `700 ${cfg.size}px "${cfg.font}", sans-serif`;
+        ctx.fillStyle = cfg.color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(textValue, posX, posY);
+
+        if (!targetCanvas && draggingElementKey === keyName) {
+          const metrics = ctx.measureText(textValue);
+          const boxW = metrics.width + 28;
+          const boxH = cfg.size + 18;
+          ctx.strokeStyle = '#2563EB';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([6, 4]);
+          ctx.strokeRect(posX - boxW / 2, posY - boxH / 2, boxW, boxH);
+        }
+        ctx.restore();
+      };
+
+      drawField(layout.certNo, p.certNo, 'certNo');
+      drawField(layout.name, p.name, 'name');
+      drawField(layout.role, p.role, 'role');
+    }
+
+    function updateLayoutFromInputs() {
+      const L = appState.settings.layout;
+
+      L.certNo.show = document.getElementById('chk-show-certno').checked;
+      L.certNo.x = Number(document.getElementById('rng-certno-x').value);
+      L.certNo.y = Number(document.getElementById('rng-certno-y').value);
+      L.certNo.size = Number(document.getElementById('num-certno-size').value);
+      L.certNo.font = document.getElementById('sel-certno-font').value;
+      L.certNo.color = document.getElementById('col-certno-color').value;
+
+      L.name.show = document.getElementById('chk-show-name').checked;
+      L.name.x = Number(document.getElementById('rng-name-x').value);
+      L.name.y = Number(document.getElementById('rng-name-y').value);
+      L.name.size = Number(document.getElementById('num-name-size').value);
+      L.name.font = document.getElementById('sel-name-font').value;
+      L.name.color = document.getElementById('col-name-color').value;
+
+      L.role.show = document.getElementById('chk-show-role').checked;
+      L.role.x = Number(document.getElementById('rng-role-x').value);
+      L.role.y = Number(document.getElementById('rng-role-y').value);
+      L.role.size = Number(document.getElementById('num-role-size').value);
+      L.role.font = document.getElementById('sel-role-font').value;
+      L.role.color = document.getElementById('col-role-color').value;
+
+      document.getElementById('lbl-certno-x').textContent = `${L.certNo.x}%`;
+      document.getElementById('lbl-certno-y').textContent = `${L.certNo.y}%`;
+      document.getElementById('lbl-name-x').textContent = `${L.name.x}%`;
+      document.getElementById('lbl-name-y').textContent = `${L.name.y}%`;
+      document.getElementById('lbl-role-x').textContent = `${L.role.x}%`;
+      document.getElementById('lbl-role-y').textContent = `${L.role.y}%`;
+
+      renderCertificateCanvas();
+    }
+
+    function syncLayoutInputsFromState() {
+      const L = appState.settings.layout;
+
+      document.getElementById('chk-show-certno').checked = L.certNo.show;
+      document.getElementById('rng-certno-x').value = L.certNo.x;
+      document.getElementById('rng-certno-y').value = L.certNo.y;
+      document.getElementById('num-certno-size').value = L.certNo.size;
+      document.getElementById('sel-certno-font').value = L.certNo.font;
+      document.getElementById('col-certno-color').value = L.certNo.color;
+
+      document.getElementById('chk-show-name').checked = L.name.show;
+      document.getElementById('rng-name-x').value = L.name.x;
+      document.getElementById('rng-name-y').value = L.name.y;
+      document.getElementById('num-name-size').value = L.name.size;
+      document.getElementById('sel-name-font').value = L.name.font;
+      document.getElementById('col-name-color').value = L.name.color;
+
+      document.getElementById('chk-show-role').checked = L.role.show;
+      document.getElementById('rng-role-x').value = L.role.x;
+      document.getElementById('rng-role-y').value = L.role.y;
+      document.getElementById('num-role-size').value = L.role.size;
+      document.getElementById('sel-role-font').value = L.role.font;
+      document.getElementById('col-role-color').value = L.role.color;
+
+      updateLayoutFromInputs();
+    }
+
+    // Fitur Geser Langsung (Drag & Drop) pada Kanvas Live Preview
+    function initCanvasDragEvents() {
+      const canvas = document.getElementById('certificate-canvas');
+      if (!canvas) return;
+
+      const getPointerPercent = (evt) => {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        const xPct = Math.min(95, Math.max(5, Math.round(((clientX - rect.left) / rect.width) * 100)));
+        const yPct = Math.min(95, Math.max(5, Math.round(((clientY - rect.top) / rect.height) * 100)));
+        return { xPct, yPct };
+      };
+
+      const startDrag = (evt) => {
+        const { xPct, yPct } = getPointerPercent(evt);
+        const L = appState.settings.layout;
+        const candidates = [
+          { key: 'certNo', dist: Math.hypot(xPct - L.certNo.x, yPct - L.certNo.y) },
+          { key: 'name',   dist: Math.hypot(xPct - L.name.x,   yPct - L.name.y) },
+          { key: 'role',   dist: Math.hypot(xPct - L.role.x,   yPct - L.role.y) }
+        ].sort((a, b) => a.dist - b.dist);
+
+        if (candidates[0].dist < 18) {
+          draggingElementKey = candidates[0].key;
+          evt.preventDefault();
+          renderCertificateCanvas();
+        }
+      };
+
+      const moveDrag = (evt) => {
+        if (!draggingElementKey) return;
+        evt.preventDefault();
+        const { xPct, yPct } = getPointerPercent(evt);
+        appState.settings.layout[draggingElementKey].x = xPct;
+        appState.settings.layout[draggingElementKey].y = yPct;
+        syncLayoutInputsFromState();
+      };
+
+      const endDrag = () => {
+        if (draggingElementKey) {
+          draggingElementKey = null;
+          renderCertificateCanvas();
+          saveStateToLocal();
+        }
+      };
+
+      canvas.addEventListener('mousedown', startDrag);
+      window.addEventListener('mousemove', moveDrag);
+      window.addEventListener('mouseup', endDrag);
+
+      canvas.addEventListener('touchstart', startDrag, { passive: false });
+      window.addEventListener('touchmove', moveDrag, { passive: false });
+      window.addEventListener('touchend', endDrag);
+    }
+
+    function handlePreviewParticipantChange(participantId) {
+      appState.selectedPreviewParticipantId = participantId;
+      renderCertificateCanvas();
+    }
+
+    // ==========================================
+    // UNDUH SERTIFIKAT (PNG & PDF)
+    // ==========================================
+    function generateParticipantCertificateDataUrl(participant) {
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = 1200;
+      offCanvas.height = 848;
+      renderCertificateCanvas(participant, offCanvas);
+      return offCanvas.toDataURL('image/png', 0.95);
+    }
+
+    function downloadCurrentPreviewPNG() {
+      const p = getSampleParticipant();
+      const dataUrl = generateParticipantCertificateDataUrl(p);
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `Sertifikat_${p.name.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+      a.click();
+      showToast(`Sertifikat PNG "${p.name}" berhasil diunduh.`, 'success');
+    }
+
+    function downloadCurrentPreviewPDF(participantOverride = null) {
+      const p = participantOverride || getSampleParticipant();
+      const dataUrl = generateParticipantCertificateDataUrl(p);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [1200, 848] });
+      pdf.addImage(dataUrl, 'PNG', 0, 0, 1200, 848);
+      pdf.save(`Sertifikat_${p.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      showToast(`Sertifikat PDF "${p.name}" berhasil diunduh.`, 'success');
+    }
+
+    function generateParticipantPDFBase64(participant) {
+      const dataUrl = generateParticipantCertificateDataUrl(participant);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [1200, 848] });
+      pdf.addImage(dataUrl, 'PNG', 0, 0, 1200, 848);
+      const dataUriString = pdf.output('datauristring');
+      return dataUriString.split(',')[1];
+    }
+
+    // ==========================================
+    // MANAJEMEN PESERTA (EXCEL & MANUAL)
+    // ==========================================
+    function handleAddParticipantManual(event) {
+      event.preventDefault();
+      const certNo = document.getElementById('inp-manual-certno').value.trim();
+      const name = document.getElementById('inp-manual-name').value.trim();
+      const role = document.getElementById('inp-manual-role').value.trim();
+      const email = document.getElementById('inp-manual-email').value.trim();
+
+      const newParticipant = {
+        id: 'P-' + Date.now(),
+        certNo,
+        name,
+        role,
+        email,
+        status: 'Belum Dikirim',
+        sentAt: '-'
+      };
+
+      appState.participants.unshift(newParticipant);
+      appState.selectedPreviewParticipantId = newParticipant.id;
+      saveStateToLocal();
+      syncAllTablesAndStats();
+
+      if (isGasConfigured()) {
+        callGasApi('saveParticipantSingle', { participant: newParticipant });
+      }
+
+      event.target.reset();
+      document.getElementById('inp-manual-role').value = 'PARTICIPANT';
+      showToast(`Peserta "${name}" berhasil ditambahkan.`, 'success');
+    }
+
+    function handleExcelImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+          if (!rows.length) {
+            showToast('File Excel kosong atau format kolom tidak sesuai.', 'error');
+            return;
+          }
+
+          const imported = rows.map((r, idx) => {
+            const numStr = String(appState.participants.length + idx + 1).padStart(3, '0');
+            const defaultNo = appState.settings.certPattern.replace('{NO}', numStr);
+
+            return {
+              id: 'P-' + Date.now() + '-' + idx,
+              certNo: String(r['No Sertifikat'] || r['no_sertifikat'] || r['Nomor'] || defaultNo).trim(),
+              name: String(r['Nama'] || r['Nama Peserta'] || r['nama_peserta'] || r['Name'] || '').trim(),
+              role: String(r['Peran'] || r['Participant'] || r['Status'] || r['peran_peserta'] || 'PARTICIPANT').trim(),
+              email: String(r['Email'] || r['Alamat Email'] || r['email'] || '').trim(),
+              status: 'Belum Dikirim',
+              sentAt: '-'
+            };
+          }).filter(item => item.name && item.email);
+
+          if (!imported.length) {
+            showToast('Pastikan kolom "Nama Peserta" dan "Email" terisi pada file Excel.', 'error');
+            return;
+          }
+
+          appState.participants = [...imported, ...appState.participants];
+          appState.selectedPreviewParticipantId = appState.participants[0]?.id || '';
+          saveStateToLocal();
+          syncAllTablesAndStats();
+
+          if (isGasConfigured()) {
+            callGasApi('saveParticipantsBulk', { participants: appState.participants });
+          }
+
+          showToast(`Berhasil mengimpor ${imported.length} peserta dari Excel!`, 'success');
+          event.target.value = '';
+        } catch (err) {
+          console.error(err);
+          showToast('Gagal membaca file Excel. Gunakan tombol Format Excel sebagai acuan.', 'error');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function downloadExcelTemplate() {
+      const sampleRows = [
+        { 'No Sertifikat': '001/FIKES-CERT/XI/2026', 'Nama Peserta': '', 'Participant': 'PARTICIPANT', 'Email': '' }
+      ];
+      const ws = XLSX.utils.json_to_sheet(sampleRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Format_Peserta');
+      XLSX.writeFile(wb, 'Format_Import_Peserta_Fikes.xlsx');
+      showToast('Format Excel berhasil diunduh.', 'info');
+    }
+
+    function autoGenerateCertNumbers() {
+      if (!appState.participants.length) {
+        showToast('Belum ada data peserta untuk di-generate nomornya.', 'info');
+        return;
+      }
+      const pattern = appState.settings.certPattern || '{NO}/FIKES-CERT/XI/2026';
+      appState.participants.forEach((p, index) => {
+        const num = String(index + 1).padStart(3, '0');
+        p.certNo = pattern.replace('{NO}', num);
+      });
+      saveStateToLocal();
+      syncAllTablesAndStats();
+      if (isGasConfigured()) {
+        callGasApi('saveParticipantsBulk', { participants: appState.participants });
+      }
+      showToast('Seluruh nomor sertifikat peserta berhasil di-generate otomatis!', 'success');
+    }
+
+    function deleteParticipant(id) {
+      appState.participants = appState.participants.filter(p => p.id !== id);
+      saveStateToLocal();
+      syncAllTablesAndStats();
+      if (isGasConfigured()) {
+        callGasApi('deleteParticipant', { id });
+      }
+      showToast('Data peserta dihapus.', 'info');
+    }
+
+    function clearAllParticipants() {
+      if (!appState.participants.length) return;
+      appState.participants = [];
+      saveStateToLocal();
+      syncAllTablesAndStats();
+      if (isGasConfigured()) {
+        callGasApi('clearParticipants', {});
+      }
+      showToast('Seluruh daftar peserta telah dikosongkan.', 'info');
+    }
+
+    // ==========================================
+    // PENGIRIMAN SERTIFIKAT (SATUAN & MASSAL OTOMATIS)
+    // ==========================================
+    function formatNowTimestamp() {
+      const now = new Date();
+      return now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) +
+        ', ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    async function sendSingleCertificate(participantId, silentToast = false) {
+      const p = appState.participants.find(item => item.id === participantId);
+      if (!p) return false;
+
+      if (!isGasConfigured()) {
+        showToast('Harap isi GAS_URL dengan URL Web App Google Apps Script Anda untuk mengirim email.', 'error');
+        return false;
+      }
+
+      if (!silentToast) {
+        showToast(`Mengirim sertifikat ke ${p.email}...`, 'info');
+      }
+
+      const format = document.getElementById('email-attachment-format').value || 'PDF';
+      const rawSubject = document.getElementById('email-subject-input').value || appState.settings.emailSubject;
+      const rawBody = document.getElementById('email-body-input').value || appState.settings.emailBody;
+
+      const compiledSubject = rawSubject
+        .replace(/\{nama\}/g, p.name)
+        .replace(/\{peran\}/g, p.role)
+        .replace(/\{no_sertifikat\}/g, p.certNo)
+        .replace(/\{app_name\}/g, appState.settings.appName);
+
+      const compiledBody = rawBody
+        .replace(/\{nama\}/g, p.name)
+        .replace(/\{peran\}/g, p.role)
+        .replace(/\{no_sertifikat\}/g, p.certNo)
+        .replace(/\{app_name\}/g, appState.settings.appName);
+
+      try {
+        let base64File = '';
+        let mimeType = 'application/pdf';
+        let ext = 'pdf';
+
+        if (format === 'PDF') {
+          base64File = generateParticipantPDFBase64(p);
+        } else {
+          const pngUrl = generateParticipantCertificateDataUrl(p);
+          base64File = pngUrl.split(',')[1];
+          mimeType = 'image/png';
+          ext = 'png';
+        }
+
+        const res = await callGasApi('sendCertificateEmail', {
+          participant: p,
+          subject: compiledSubject,
+          body: compiledBody,
+          base64File,
+          mimeType,
+          fileName: `Sertifikat_${p.name.replace(/[^a-zA-Z0-9]/g, '_')}.${ext}`
+        });
+
+        if (!res || res.status !== 'success') {
+          throw new Error(res?.message || 'Gagal mengirim email melalui Google Apps Script');
+        }
+
+        const timeStr = res.sentAt || formatNowTimestamp();
+        p.status = 'Terkirim';
+        p.sentAt = timeStr;
+
+        appState.logs.unshift({
+          id: 'LOG-' + Date.now() + '-' + Math.floor(Math.random() * 100),
+          time: timeStr,
+          certNo: p.certNo,
+          name: p.name,
+          email: p.email,
+          status: 'Terkirim',
+          note: `Terkirim otomatis (${format})`
+        });
+
+        saveStateToLocal();
+        syncAllTablesAndStats();
+
+        if (!silentToast) {
+          showToast(`Sertifikat berhasil dikirim ke ${p.email}!`, 'success');
+        }
+        return true;
+      } catch (err) {
+        const timeStr = formatNowTimestamp();
+        p.status = 'Gagal';
+        appState.logs.unshift({
+          id: 'LOG-' + Date.now(),
+          time: timeStr,
+          certNo: p.certNo,
+          name: p.name,
+          email: p.email,
+          status: 'Gagal',
+          note: err.message || 'Kesalahan jaringan/kuota email'
+        });
+        saveStateToLocal();
+        syncAllTablesAndStats();
+        if (!silentToast) {
+          showToast(`Gagal mengirim ke ${p.email}: ${err.message}`, 'error');
+        }
+        return false;
+      }
+    }
+
+    // Pengiriman Massal Otomatis Tanpa Klik Satu-Satu
+    async function startBulkSend(resendAll = false) {
+      if (appState.isBulkRunning) return;
+
+      if (!appState.participants.length) {
+        showToast('Belum ada daftar peserta. Silakan import Excel atau tambah peserta terlebih dahulu.', 'error');
+        return;
+      }
+
+      if (!isGasConfigured()) {
+        showToast('Harap hubungkan GAS_URL terlebih dahulu untuk menjalankan pengiriman email massal.', 'error');
+        return;
+      }
+
+      const queue = resendAll
+        ? [...appState.participants]
+        : appState.participants.filter(p => p.status !== 'Terkirim');
+
+      if (queue.length === 0) {
+        showToast('Seluruh peserta sudah berstatus Terkirim!', 'info');
+        return;
+      }
+
+      appState.isBulkRunning = true;
+      document.getElementById('btn-stop-bulk').classList.remove('hidden');
+      document.getElementById('bulk-status-pill').textContent = 'Sedang Mengirim Massal...';
+      document.getElementById('bulk-status-pill').className = 'px-3 py-1 rounded-full bg-amber-400 text-slate-900 text-xs font-extrabold animate-pulse whitespace-nowrap';
+
+      let completed = 0;
+      const total = queue.length;
+
+      for (let i = 0; i < total; i++) {
+        if (!appState.isBulkRunning) break;
+        const target = queue[i];
+
+        document.getElementById('bulk-current-target').textContent =
+          `Mengirim (${i + 1}/${total}): ${target.name} <${target.email}>...`;
+
+        await sendSingleCertificate(target.id, true);
+        completed++;
+
+        const pct = Math.round((completed / total) * 100);
+        document.getElementById('bulk-progress-bar').style.width = `${pct}%`;
+        document.getElementById('bulk-progress-label').textContent = `Progress Antrean: ${pct}%`;
+        document.getElementById('bulk-progress-numbers').textContent = `${completed} / ${total} Selesai`;
+      }
+
+      appState.isBulkRunning = false;
+      document.getElementById('btn-stop-bulk').classList.add('hidden');
+      document.getElementById('bulk-status-pill').textContent = 'Pengiriman Massal Selesai';
+      document.getElementById('bulk-status-pill').className = 'px-3 py-1 rounded-full bg-emerald-400 text-slate-900 text-xs font-extrabold whitespace-nowrap';
+      document.getElementById('bulk-current-target').textContent =
+        `Berhasil memproses ${completed} dari ${total} sertifikat peserta.`;
+
+      showToast(`Pengiriman massal selesai! ${completed} sertifikat telah diproses.`, 'success');
+    }
+
+    function stopBulkSend() {
+      appState.isBulkRunning = false;
+      showToast('Pengiriman massal dihentikan.', 'info');
+    }
+
+    // ==========================================
+    // PENGATURAN IDENTITAS APLIKASI & NAMA ADMIN/PANITIA
+    // ==========================================
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        appState.settings.appLogo = e.target.result;
+        document.getElementById('set-app-logo-url').value = '';
+        applyBrandingToUI();
+        saveStateToLocal();
+        showToast('Logo aplikasi berhasil diperbarui!', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveIdentitySettings() {
+      const newName = document.getElementById('set-app-name').value.trim();
+      const newSubtitle = document.getElementById('set-app-subtitle').value.trim();
+      const newAdminName = document.getElementById('set-admin-fullname').value.trim();
+      const newPanitiaName = document.getElementById('set-panitia-fullname').value.trim();
+      const logoUrlInput = document.getElementById('set-app-logo-url').value.trim();
+      const certPattern = document.getElementById('set-cert-pattern').value.trim();
+
+      if (newName) appState.settings.appName = newName;
+      if (newSubtitle) appState.settings.appSubtitle = newSubtitle;
+      if (newAdminName) appState.settings.adminFullName = newAdminName;
+      if (newPanitiaName) appState.settings.panitiaFullName = newPanitiaName;
+      if (logoUrlInput) appState.settings.appLogo = logoUrlInput;
+      if (certPattern) appState.settings.certPattern = certPattern;
+
+      // Update nama user aktif sesuai role
+      if (appState.currentUser.role === 'ADMIN') {
+        appState.currentUser.name = appState.settings.adminFullName;
+      } else if (appState.currentUser.role === 'PANITIA') {
+        appState.currentUser.name = appState.settings.panitiaFullName;
+      }
+
+      applyBrandingToUI();
+      applyRolePermissions();
+
+      if (!appState.settings.templateBgDataUrl) {
+        generateDefaultCertificateBg();
+      }
+      saveStateToLocal();
+
+      if (isGasConfigured()) {
+        callGasApi('saveSettings', { settings: appState.settings });
+      }
+
+      showToast('Identitas Aplikasi & Nama Pengelola berhasil disimpan!', 'success');
+    }
+
+    function saveLayoutSettings() {
+      appState.settings.emailSubject = document.getElementById('email-subject-input').value;
+      appState.settings.emailBody = document.getElementById('email-body-input').value;
+      saveStateToLocal();
+
+      if (isGasConfigured()) {
+        callGasApi('saveSettings', { settings: appState.settings });
+      }
+      showToast('Tata letak sertifikat & template email berhasil disimpan!', 'success');
+    }
+
+    function applyBrandingToUI() {
+      const s = appState.settings;
+      const activeLogo = s.appLogo || DEFAULT_LOGO_SVG;
+
+      document.title = s.appName;
+      document.getElementById('header-app-name').textContent = s.appName;
+      document.getElementById('header-app-subtitle').textContent = s.appSubtitle;
+      document.getElementById('dashboard-main-title').textContent = s.appName;
+      document.getElementById('header-app-logo').src = activeLogo;
+
+      const loginLogo = document.getElementById('login-modal-logo');
+      if (loginLogo) loginLogo.src = activeLogo;
+      const loginAppName = document.getElementById('login-modal-appname');
+      if (loginAppName) loginAppName.textContent = s.appName;
+
+      document.getElementById('set-app-name').value = s.appName;
+      document.getElementById('set-app-subtitle').value = s.appSubtitle;
+      document.getElementById('set-admin-fullname').value = s.adminFullName || 'Andriana Suherman, S.Kom.';
+      document.getElementById('set-panitia-fullname').value = s.panitiaFullName || 'Panitia Pelaksana Fikes';
+      document.getElementById('set-cert-pattern').value = s.certPattern;
+
+      document.getElementById('preview-settings-logo').src = activeLogo;
+      document.getElementById('preview-settings-name').textContent = s.appName;
+      document.getElementById('preview-settings-subtitle').textContent = s.appSubtitle;
+      document.getElementById('card-template-name').textContent = s.templateName;
+
+      document.getElementById('email-subject-input').value = s.emailSubject;
+      document.getElementById('email-body-input').value = s.emailBody;
+      syncLayoutInputsFromState();
+    }
+
+    function handleQuickBrandClick() {
+      switchTab('settings');
+    }
+
+    // ==========================================
+    // SINKRONISASI TABEL, STATISTIK, & PENCARIAN HURUF AWALAN
+    // ==========================================
+    function handleGlobalSearch(q) {
+      appState.searchQuery = (q || '').toLowerCase().trim();
+      syncAllTablesAndStats();
+    }
+
+    function syncAllTablesAndStats() {
+      const all = appState.participants;
+      const sentCount = all.filter(p => p.status === 'Terkirim').length;
+      const pendingCount = all.length - sentCount;
+      const sentPct = all.length > 0 ? Math.round((sentCount / all.length) * 100) : 0;
+      const pendingPct = all.length > 0 ? Math.round((pendingCount / all.length) * 100) : 0;
+
+      // Update Indikator Notifikasi Terkirim
+      const dotDesktop = document.getElementById('notif-sent-dot');
+      const dotMobile = document.getElementById('notif-sent-dot-mobile');
+      if (sentCount > 0) {
+        dotDesktop.classList.remove('hidden');
+        dotMobile.classList.remove('hidden');
+      } else {
+        dotDesktop.classList.add('hidden');
+        dotMobile.classList.add('hidden');
+      }
+
+      // Update Kartu & Sidebar Progress
+      document.getElementById('stat-total-participants').textContent = all.length;
+      document.getElementById('stat-sent-count').textContent = sentCount;
+      document.getElementById('stat-pending-count').textContent = pendingCount;
+
+      document.getElementById('sidebar-sent-ratio').textContent = `${sentCount} / ${all.length} Peserta`;
+      document.getElementById('sidebar-sent-bar').style.width = `${sentPct}%`;
+      document.getElementById('sidebar-pending-count').textContent = `${pendingCount} Peserta`;
+      document.getElementById('sidebar-pending-bar').style.width = `${pendingPct}%`;
+
+      document.getElementById('participants-table-counter').textContent = `Total: ${all.length} Peserta`;
+
+      // Filter berdasarkan huruf awalan saja (startsWith)
+      const filtered = all.filter(p => {
+        if (!appState.searchQuery) return true;
+        return p.name.toLowerCase().trim().startsWith(appState.searchQuery);
+      });
+
+      // Populate Select Pratinjau di Studio Live Preview
+      const selectEl = document.getElementById('preview-participant-select');
+      if (all.length === 0) {
+        selectEl.innerHTML = `<option value="">[ Kosong - Belum Ada Peserta ]</option>`;
+      } else {
+        selectEl.innerHTML = all.map(p =>
+          `<option value="${p.id}" ${p.id === appState.selectedPreviewParticipantId ? 'selected' : ''}>${p.name} (${p.role})</option>`
+        ).join('');
+      }
+
+      // Render Tabel Dashboard (Rata Tengah / Center & 1 Baris)
+      const dashTbody = document.getElementById('dashboard-participants-tbody');
+      if (filtered.length === 0) {
+        dashTbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-10 px-4 text-center text-xs font-semibold text-slate-400">
+              Belum ada data peserta. Silakan buka menu <strong>Data Peserta (Excel)</strong> untuk mengimpor file Excel atau menambahkan peserta baru.
+            </td>
+          </tr>
+        `;
+      } else {
+        dashTbody.innerHTML = filtered.map((p) => {
+          const badgeClass = p.status === 'Terkirim'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            : p.status === 'Gagal'
+            ? 'bg-rose-50 text-rose-700 border-rose-200'
+            : 'bg-amber-50 text-amber-700 border-amber-200';
+
+          return `
+            <tr class="hover:bg-[#EBF2FC] transition whitespace-nowrap text-center">
+              <td class="py-3.5 px-4 text-xs font-bold text-slate-600 whitespace-nowrap text-center">${p.certNo}</td>
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <span class="font-bold text-slate-800 text-xs md:text-sm whitespace-nowrap">${p.name}</span>
+              </td>
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-slate-100 text-[#1B54B4] text-[11px] font-bold whitespace-nowrap">${p.role}</span>
+              </td>
+              <td class="py-3.5 px-4 text-xs font-medium text-slate-500 whitespace-nowrap text-center">${p.email}</td>
+              <td class="py-3.5 px-4 text-xs text-slate-400 whitespace-nowrap text-center">${p.sentAt || '-'}</td>
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold border whitespace-nowrap ${badgeClass}">${p.status}</span>
+              </td>
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <div class="inline-flex items-center justify-center gap-1.5 flex-nowrap">
+                  <button onclick="openSinglePreviewModal('${p.id}')" title="Lihat Sertifikat" class="px-2.5 py-1 rounded-lg bg-blue-50 text-[#1B54B4] text-xs font-bold hover:bg-blue-100 transition whitespace-nowrap">
+                    Preview
+                  </button>
+                  <button onclick="sendSingleCertificate('${p.id}')" title="Kirim Sertifikat ke Email" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition whitespace-nowrap">
+                    Kirim Email
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Tabel Manajemen Peserta Lengkap (Rata Tengah / Center & 1 Baris)
+      const fullTbody = document.getElementById('full-participants-tbody');
+      if (filtered.length === 0) {
+        fullTbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-10 px-4 text-center text-xs font-semibold text-slate-400">
+              Daftar peserta masih kosong. Gunakan tombol <strong>Import dari Excel</strong> di atas atau isi form manual.
+            </td>
+          </tr>
+        `;
+      } else {
+        fullTbody.innerHTML = filtered.map(p => {
+          const statusBadge = p.status === 'Terkirim'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            : p.status === 'Gagal'
+            ? 'bg-rose-50 text-rose-700 border-rose-200'
+            : 'bg-amber-50 text-amber-700 border-amber-200';
+
+          return `
+            <tr class="hover:bg-[#EBF2FC] transition whitespace-nowrap text-center">
+              <td class="py-3.5 px-4 text-xs font-bold text-slate-600 whitespace-nowrap text-center">${p.certNo}</td>
+              <td class="py-3.5 px-4 text-xs font-bold text-slate-800 whitespace-nowrap text-center">${p.name}</td>
+              <td class="py-3.5 px-4 text-xs font-bold text-[#1B54B4] whitespace-nowrap text-center">${p.role}</td>
+              <td class="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap text-center">${p.email}</td>
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold border whitespace-nowrap ${statusBadge}">
+                  ${p.status}
+                </span>
+              </td>
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <div class="inline-flex items-center justify-center gap-1.5 flex-nowrap">
+                  <button onclick="openSinglePreviewModal('${p.id}')" class="px-3 py-1.5 rounded-lg bg-blue-50 text-[#1B54B4] text-xs font-bold hover:bg-blue-100 whitespace-nowrap">Preview</button>
+                  <button onclick="sendSingleCertificate('${p.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 whitespace-nowrap">Kirim Email</button>
+                  <button onclick="deleteParticipant('${p.id}')" class="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold hover:bg-rose-100 whitespace-nowrap">Hapus</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Tabel Antrean di Tab Kirim Sertifikat (1 Baris Rapi & Center)
+      const queueTbody = document.getElementById('sender-queue-tbody');
+      if (all.length === 0) {
+        queueTbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="py-8 px-4 text-center text-xs font-semibold text-slate-400">
+              Belum ada peserta dalam antrean pengiriman.
+            </td>
+          </tr>
+        `;
+      } else {
+        queueTbody.innerHTML = all.map(p => {
+          const badgeStyle = p.status === 'Terkirim'
+            ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+            : p.status === 'Gagal'
+            ? 'bg-rose-100 text-rose-700 border-rose-200'
+            : 'bg-amber-100 text-amber-800 border-amber-200';
+
+          return `
+            <tr class="hover:bg-[#EBF2FC] transition whitespace-nowrap text-center">
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <p class="font-bold text-slate-800 text-xs whitespace-nowrap">${p.name}</p>
+                <p class="text-[11px] text-slate-400 whitespace-nowrap">${p.email} • ${p.certNo}</p>
+              </td>
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <span class="inline-flex items-center justify-center px-3.5 py-1 rounded-full text-[11px] font-bold border whitespace-nowrap ${badgeStyle}">
+                  ${p.status}
+                </span>
+              </td>
+              <td class="py-3.5 px-4 whitespace-nowrap text-center">
+                <button onclick="sendSingleCertificate('${p.id}')" class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#1B54B4] hover:bg-blue-800 text-white text-xs font-bold transition whitespace-nowrap shadow-sm">
+                  <i data-lucide="send" class="w-3.5 h-3.5 shrink-0"></i>
+                  <span class="whitespace-nowrap">Kirim Satuan</span>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Tabel Riwayat Log Pengiriman (Rata Tengah / Center)
+      const logsTbody = document.getElementById('logs-history-tbody');
+      if (appState.logs.length === 0) {
+        logsTbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="py-10 px-4 text-center text-xs font-semibold text-slate-400">
+              Belum ada riwayat pengiriman email sertifikat.
+            </td>
+          </tr>
+        `;
+      } else {
+        logsTbody.innerHTML = appState.logs.map(l => `
+          <tr class="hover:bg-[#EBF2FC] transition whitespace-nowrap text-center">
+            <td class="py-3.5 px-4 text-xs text-slate-500 font-medium whitespace-nowrap text-center">${l.time}</td>
+            <td class="py-3.5 px-4 text-xs font-bold text-slate-600 whitespace-nowrap text-center">${l.certNo}</td>
+            <td class="py-3.5 px-4 text-xs font-bold text-slate-800 whitespace-nowrap text-center">${l.name}</td>
+            <td class="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap text-center">${l.email}</td>
+            <td class="py-3.5 px-4 whitespace-nowrap text-center">
+              <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap ${l.status === 'Terkirim' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}">
+                ${l.status}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap text-center">${l.note}</td>
+          </tr>
+        `).join('');
+      }
+
+      lucide.createIcons();
+      renderCertificateCanvas();
+    }
+
+    function exportLogsToExcel() {
+      if (!appState.logs.length) {
+        showToast('Belum ada riwayat pengiriman untuk diekspor.', 'info');
+        return;
+      }
+      const ws = XLSX.utils.json_to_sheet(appState.logs);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Riwayat_Pengiriman');
+      XLSX.writeFile(wb, 'Riwayat_Pengiriman_Fikes_Certificate.xlsx');
+      showToast('Log riwayat pengiriman berhasil diekspor ke Excel!', 'success');
+    }
+
+    // ==========================================
+    // MODAL PREVIEW SERTIFIKAT SATUAN
+    // ==========================================
+    function openSinglePreviewModal(participantId) {
+      const p = appState.participants.find(item => item.id === participantId);
+      if (!p) return;
+
+      const dataUrl = generateParticipantCertificateDataUrl(p);
+      document.getElementById('modal-preview-title').textContent = p.name;
+      document.getElementById('modal-preview-subtitle').textContent = `${p.certNo} • ${p.role} • ${p.email}`;
+      document.getElementById('modal-preview-img').src = dataUrl;
+
+      document.getElementById('modal-btn-download-pdf').onclick = () => downloadCurrentPreviewPDF(p);
+      document.getElementById('modal-btn-send-email').onclick = () => {
+        closeSinglePreviewModal();
+        sendSingleCertificate(p.id);
+      };
+
+      const modal = document.getElementById('modal-single-preview');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeSinglePreviewModal() {
+      const modal = document.getElementById('modal-single-preview');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // ==========================================
+    // NAVIGASI TAB & SIDEBAR RESPONSIVE
+    // ==========================================
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.className = 'nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-semibold transition bg-white/15 text-white whitespace-nowrap';
+        } else {
+          btn.className = 'nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-medium text-blue-100 hover:bg-white/10 hover:text-white transition whitespace-nowrap';
+        }
+      });
+
+      if (tabId === 'studio') {
+        setTimeout(() => renderCertificateCanvas(), 50);
+      }
+
+      // Tutup drawer mobile/tablet jika terbuka
+      const sidebar = document.getElementById('app-sidebar');
+      const backdrop = document.getElementById('mobile-sidebar-backdrop');
+      if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('app-sidebar');
+      const backdrop = document.getElementById('mobile-sidebar-backdrop');
+      sidebar.classList.toggle('-translate-x-full');
+      backdrop.classList.toggle('hidden');
+    }
+
+    // ==========================================
+    // AUTENTIKASI LOGIN KHUSUS ADMIN & PANITIA
+    // ==========================================
+    function openLoginModal() {
+      const modal = document.getElementById('modal-login');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('modal-login');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function handleLoginSubmit(event) {
+      event.preventDefault();
+      const username = document.getElementById('login-username').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value.trim();
+
+      if (isGasConfigured()) {
+        const res = await callGasApi('login', { username, password });
+        if (res && res.status === 'success') {
+          appState.currentUser = res.user;
+          applyRolePermissions();
+          saveStateToLocal();
+          closeLoginModal();
+          showToast(`Selamat datang, ${res.user.name} (${res.user.role})!`, 'success');
+        } else {
+          showToast(res?.message || 'Username atau password Admin/Panitia tidak sesuai.', 'error');
+        }
+      } else {
+        // Verifikasi lokal sesuai kredensial standar sheet Users jika URL GAS belum diisi
+        if (username === 'admin' && password === 'admin2026') {
+          appState.currentUser = {
+            username: 'admin',
+            name: appState.settings.adminFullName || 'Andriana Suherman, S.Kom.',
+            role: 'ADMIN'
+          };
+          applyRolePermissions();
+          saveStateToLocal();
+          closeLoginModal();
+          showToast(`Selamat datang, ${appState.currentUser.name} (ADMIN)!`, 'success');
+        } else if (username === 'panitia' && password === 'panitia2026') {
+          appState.currentUser = {
+            username: 'panitia',
+            name: appState.settings.panitiaFullName || 'Panitia Pelaksana Fikes',
+            role: 'PANITIA'
+          };
+          applyRolePermissions();
+          saveStateToLocal();
+          closeLoginModal();
+          showToast(`Selamat datang, ${appState.currentUser.name} (PANITIA)!`, 'success');
+        } else {
+          showToast('Username atau password Admin/Panitia tidak sesuai!', 'error');
+        }
+      }
+    }
+
+    function applyRolePermissions() {
+      const fullName = appState.currentUser.name || 'Andriana Suherman, S.Kom.';
+      const roleName = appState.currentUser.role || 'ADMIN';
+      const initial = fullName.charAt(0).toUpperCase();
+
+      // Desktop Header (1 Baris)
+      document.getElementById('current-user-name').textContent = fullName;
+      document.getElementById('current-user-role').textContent = roleName;
+      document.getElementById('current-user-avatar').textContent = initial;
+
+      // Mobile/Tablet Header (1 Baris)
+      document.getElementById('current-user-name-mobile').textContent = fullName;
+      document.getElementById('current-user-role-mobile').textContent = roleName;
+      document.getElementById('current-user-avatar-mobile').textContent = initial;
+    }
+
+    // ==========================================
+    // KOMUNIKASI API GOOGLE APPS SCRIPT (GAS)
+    // ==========================================
+    async function callGasApi(action, payload = {}) {
+      if (!isGasConfigured()) {
+        return { status: 'unconfigured', message: 'URL_DEPLOY_GAS_ANDA_DISINI belum diganti dengan URL Web App GAS.' };
+      }
+      try {
+        const response = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action, ...payload })
+        });
+        return await response.json();
+      } catch (err) {
+        console.error('GAS API Error:', err);
+        return { status: 'error', message: err.message };
+      }
+    }
+
+    async function syncWithBackend(silent = false) {
+      if (!isGasConfigured()) {
+        if (!silent) {
+          showToast('Silakan masukkan URL Web App GAS Anda pada variabel GAS_URL di dalam kode.', 'info');
+        }
+        return;
+      }
+      if (!silent) {
+        showToast('Menyinkronkan data dengan Google Sheets...', 'info');
+      }
+      const res = await callGasApi('getInitialData', {});
+      if (res && res.status === 'success') {
+        if (res.settings) appState.settings = { ...appState.settings, ...res.settings };
+        if (Array.isArray(res.participants)) appState.participants = res.participants;
+        if (Array.isArray(res.logs)) appState.logs = res.logs;
+
+        if (appState.currentUser.role === 'ADMIN' && appState.settings.adminFullName) {
+          appState.currentUser.name = appState.settings.adminFullName;
+        } else if (appState.currentUser.role === 'PANITIA' && appState.settings.panitiaFullName) {
+          appState.currentUser.name = appState.settings.panitiaFullName;
+        }
+
+        applyBrandingToUI();
+        applyRolePermissions();
+        generateDefaultCertificateBg();
+        syncAllTablesAndStats();
+        saveStateToLocal();
+
+        if (!silent) {
+          showToast('Data berhasil disinkronkan dengan Google Sheets!', 'success');
+        }
+      } else if (!silent) {
+        showToast('Gagal mengambil data dari Google Sheets.', 'error');
+      }
+    }
+
+    // ==========================================
+    // TOAST NOTIFICATION HELPER
+    // ==========================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-emerald-600 text-white',
+        error: 'bg-rose-600 text-white',
+        info: 'bg-[#1B54B4] text-white'
+      };
+      const toast = document.createElement('div');
+      toast.className = `${colors[type] || colors.info} pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2.5 transition-all duration-300`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
