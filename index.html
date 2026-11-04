@@ -166,7 +166,9 @@
 
     .logo-transparent {
       background: transparent !important;
-      object-fit: contain;
+      object-fit: contain !important;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     /* Responsive Typography & Touch Comfort */
@@ -222,9 +224,9 @@
   <div id="login-screen" class="fixed inset-0 z-[100000] bg-gradient-to-br from-royal-900 via-royal-800 to-slate-900 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-md w-full p-6 sm:p-8 my-auto relative overflow-hidden">
       <div class="text-center mb-6">
-        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-royal-50 flex items-center justify-center">
-          <img id="login-logo-img" src="" alt="Logo" class="w-12 h-12 logo-transparent hidden" />
-          <svg id="login-default-logo" class="w-11 h-11 text-royal-600" viewBox="0 0 48 48" fill="none">
+        <div class="mx-auto mb-3.5 flex items-center justify-center bg-transparent">
+          <img id="login-logo-img" src="" alt="Logo" class="h-24 sm:h-28 w-auto max-w-[220px] logo-transparent hidden" />
+          <svg id="login-default-logo" class="h-20 sm:h-24 w-auto text-royal-600" viewBox="0 0 48 48" fill="none">
             <path d="M24 4L4 40H44L24 4Z" fill="#2563EB"/>
             <circle cx="24" cy="28" r="5" fill="#FFFFFF"/>
           </svg>
@@ -236,7 +238,7 @@
       <form onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label for="login-username" class="block text-xs font-bold text-slate-700 mb-1.5">Username</label>
-          <input id="login-username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="Masukkan username Admin / Panitia" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:border-royal-600 focus:ring-2 focus:ring-royal-100 transition" />
+          <input id="login-username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="Masukkan username" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:border-royal-600 focus:ring-2 focus:ring-royal-100 transition" />
         </div>
         <div>
           <label for="login-password" class="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
@@ -271,10 +273,10 @@
           <i id="mobile-menu-icon" class="fa-solid fa-bars text-base"></i>
         </button>
 
-        <div class="flex items-center gap-2 sm:gap-3 cursor-pointer min-w-0" onclick="switchTab('dashboard')">
-          <div class="w-8 h-8 xs:w-9 xs:h-9 sm:w-11 sm:h-11 rounded-xl bg-royal-50/60 flex items-center justify-center shrink-0">
-            <img id="header-logo-img" src="" alt="Logo Aplikasi" class="max-h-7 max-w-7 sm:max-h-10 sm:max-w-10 logo-transparent hidden" />
-            <svg id="header-default-logo" class="w-6 h-6 xs:w-7 xs:h-7 sm:w-9 sm:h-9" viewBox="0 0 48 48" fill="none">
+        <div class="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer min-w-0" onclick="switchTab('dashboard')">
+          <div class="flex items-center justify-center bg-transparent shrink-0">
+            <img id="header-logo-img" src="" alt="Logo Aplikasi" class="h-10 xs:h-11 sm:h-12 lg:h-14 w-auto max-w-[150px] logo-transparent hidden" />
+            <svg id="header-default-logo" class="h-9 xs:h-10 sm:h-11 lg:h-12 w-auto" viewBox="0 0 48 48" fill="none">
               <path d="M24 5L5 39H43L24 5Z" fill="#2563EB"/>
               <circle cx="24" cy="28" r="4.5" fill="#FFFFFF"/>
             </svg>
@@ -390,6 +392,21 @@
         class="w-72 max-w-[82vw] sm:w-64 bg-royal-800 text-white flex flex-col justify-between shrink-0 z-40 lg:z-20 transition-transform duration-300 ease-in-out fixed lg:static top-16 sm:top-20 bottom-0 left-0 -translate-x-full lg:translate-x-0 lg:rounded-tr-3xl shadow-2xl lg:shadow-xl overflow-hidden"
       >
         <div class="p-4 sm:p-5 space-y-5 overflow-y-auto flex-1">
+          <!-- Identitas Logo Sidebar (Menyatu dengan Background Tanpa Kotak) -->
+          <div class="flex items-center gap-3 px-1 pb-2 border-b border-royal-700/60">
+            <div class="flex items-center justify-center bg-transparent shrink-0">
+              <img id="sidebar-logo-img" src="" alt="Logo Sidebar" class="h-11 w-auto max-w-[120px] logo-transparent hidden" />
+              <svg id="sidebar-default-logo" class="h-10 w-auto" viewBox="0 0 48 48" fill="none">
+                <path d="M24 5L5 39H43L24 5Z" fill="#60A5FA"/>
+                <circle cx="24" cy="28" r="4.5" fill="#FFFFFF"/>
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <p id="sidebar-app-name" class="text-xs font-extrabold text-white truncate leading-tight">Fikes Certificate Center</p>
+              <p id="sidebar-app-subtitle" class="text-[10px] font-medium text-royal-200 truncate mt-0.5">Fakultas Ilmu Kesehatan</p>
+            </div>
+          </div>
+
           <!-- Ringkasan Akun di Drawer Mobile (< 640px) -->
           <div class="sm:hidden flex items-center justify-between gap-3 p-3 rounded-2xl bg-royal-900/60 border border-royal-700/80">
             <div class="flex items-center gap-2.5 min-w-0">
@@ -428,7 +445,7 @@
 
             <button type="button" onclick="switchTab('peserta')" id="nav-btn-peserta" class="sidebar-nav-btn touch-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-royal-100 hover:bg-royal-700/60 transition">
               <i class="fa-solid fa-user-group w-4 text-center"></i>
-              <span>Data Peserta (Excel)</span>
+              <span>Data Peserta</span>
             </button>
 
             <button type="button" onclick="switchTab('kirim')" id="nav-btn-kirim" class="sidebar-nav-btn touch-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-royal-100 hover:bg-royal-700/60 transition">
@@ -468,9 +485,18 @@
         <!-- ================= TAB 1: DASHBOARD UTAMA ================= -->
         <section id="tab-dashboard" class="tab-panel hidden space-y-5 sm:space-y-6 max-w-6xl mx-auto">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
-            <div>
-              <h2 class="fluid-page-title font-extrabold text-royal-800">Dashboard Utama Sertifikat</h2>
-              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Ringkasan penerbitan e-Sertifikat otomatis terintegrasi Google Form & Google Sheets.</p>
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="flex items-center justify-center bg-transparent shrink-0">
+                <img id="dashboard-logo-img" src="" alt="Logo Dashboard" class="h-12 sm:h-14 w-auto max-w-[150px] logo-transparent hidden" />
+                <svg id="dashboard-default-logo" class="h-11 sm:h-12 w-auto" viewBox="0 0 48 48" fill="none">
+                  <path d="M24 5L5 39H43L24 5Z" fill="#2563EB"/>
+                  <circle cx="24" cy="28" r="4.5" fill="#FFFFFF"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <h2 class="fluid-page-title font-extrabold text-royal-800">Dashboard Utama Sertifikat</h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Ringkasan penerbitan e-Sertifikat otomatis terintegrasi Google Form & Google Sheets.</p>
+              </div>
             </div>
             <div class="grid grid-cols-1 xs:grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5">
               <button type="button" onclick="syncFromDatabaseRealtime(false)" class="touch-btn px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition">
@@ -558,7 +584,7 @@
                 <i class="fa-solid fa-user-group text-sm"></i>
               </div>
               <p class="text-xs font-extrabold text-slate-800">Data Peserta</p>
-              <p class="text-[11px] text-slate-500 mt-0.5">Kelola & impor Excel/CSV</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">Kelola daftar peserta</p>
             </button>
 
             <button type="button" onclick="switchTab('kirim')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-royal-500 text-left shadow-sm transition group">
@@ -778,12 +804,12 @@
           </div>
         </section>
 
-        <!-- ================= TAB 3: DATA PESERTA (EXCEL & GOOGLE FORM) ================= -->
+        <!-- ================= TAB 3: DATA PESERTA ================= -->
         <section id="tab-peserta" class="tab-panel hidden space-y-4 sm:space-y-5 max-w-6xl mx-auto">
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
             <div>
-              <h2 class="fluid-page-title font-extrabold text-royal-800">Data Peserta Sertifikat</h2>
-              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Data peserta & <b>Certificate Type</b> (<i>Committee, Oral Presenter, Participant</i>) dari Google Form maupun Excel/CSV tersinkron otomatis.</p>
+              <h2 class="fluid-page-title font-extrabold text-royal-800">Data Peserta</h2>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Data peserta & <b>Certificate Type</b> (<i>Committee, Oral Presenter, Participant</i>) tersinkron otomatis.</p>
             </div>
             <div class="grid grid-cols-1 xs:grid-cols-3 sm:flex sm:flex-wrap items-center gap-2 shrink-0">
               <button type="button" onclick="syncFromDatabaseRealtime(false)" class="touch-btn px-3.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center gap-2 whitespace-nowrap">
@@ -862,18 +888,18 @@
           <!-- TAMPILAN KARTU (CARD VIEW) UNTUK LAYAR KECIL / MOBILE ATAU SAAT DIPILIH -->
           <div id="participants-cards-wrapper" class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
 
-          <!-- TAMPILAN TABEL (DENGAN HORIZONTAL SCROLL TERISOLASI) -->
+          <!-- TAMPILAN TABEL (DENGAN PROPORSI KOLOM SEIMBANG & KOLOM AKSI RAPI) -->
           <div id="participants-table-wrapper" class="hidden md:block bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
             <div class="table-scroll-container">
-              <table class="w-full text-left border-collapse text-xs min-w-[720px]">
+              <table class="w-full min-w-[720px] text-left border-collapse text-xs">
                 <thead>
                   <tr class="bg-royal-800 text-white uppercase tracking-wider text-[11px]">
-                    <th class="py-3.5 px-4 whitespace-nowrap">No. Sertifikat</th>
-                    <th class="py-3.5 px-4 whitespace-nowrap">Nama Peserta</th>
-                    <th class="py-3.5 px-4 whitespace-nowrap">Email Peserta</th>
-                    <th class="py-3.5 px-4 whitespace-nowrap">Certificate Type / Peran</th>
-                    <th class="py-3.5 px-4 whitespace-nowrap">Status Email</th>
-                    <th class="py-3.5 px-4 text-right whitespace-nowrap">Aksi</th>
+                    <th class="py-3.5 pl-5 pr-3 w-[16%] whitespace-nowrap">No. Sertifikat</th>
+                    <th class="py-3.5 px-3 w-[20%] whitespace-nowrap">Nama Peserta</th>
+                    <th class="py-3.5 px-3 w-[22%] whitespace-nowrap">Email Peserta</th>
+                    <th class="py-3.5 px-3 w-[14%] whitespace-nowrap">Certificate Type / Peran</th>
+                    <th class="py-3.5 px-3 w-[12%] whitespace-nowrap">Status Email</th>
+                    <th class="py-3.5 pl-3 pr-6 w-[16%] text-center whitespace-nowrap">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="participants-table-body" class="divide-y divide-slate-100"></tbody>
@@ -915,13 +941,27 @@
 
                 <div>
                   <label for="email-body-input" class="block text-xs font-bold text-slate-700 mb-1.5">Pesan Pengantar Email (Mendukung tag {NAMA}, {NOMOR}, {PERAN}, {KEGIATAN})</label>
-                  <textarea id="email-body-input" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-royal-600">Halo {NAMA},
+                  <textarea id="email-body-input" rows="10" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-royal-600">Dear {Full Name with Academic / Professional Titles},
 
-Terima kasih atas partisipasi Anda sebagai {PERAN} dalam kegiatan {KEGIATAN}.
-Terlampir adalah E-Sertifikat resmi Anda dengan Nomor: {NOMOR}.
+Thank you for your participation and valuable contribution as a {Certificate Type} in THE 4TH INTERNATIONAL CONFERENCE ON HEALTH SCIENCES, organized by the Faculty of Health Sciences, National University of Indonesia.
 
-Salam hangat,
-Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
+In recognition of your participation, please find attached your official Electronic Certificate (E-Certificate) with the following details:
+
+Name: {Full Name with Academic / Professional Titles}
+
+Role: {Certificate Type}
+
+Event: THE 4TH INTERNATIONAL CONFERENCE ON HEALTH SCIENCES
+
+We kindly encourage you to download and keep this certificate for your personal records.
+
+Thank you once again for your participation and contribution. We sincerely appreciate your support and hope to welcome you to our future international academic events.
+
+Best regards,
+
+Organizing Committee
+Faculty of Health Sciences
+National University of Indonesia</textarea>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
@@ -1111,10 +1151,10 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
             <div class="lg:col-span-5 bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-7 shadow-sm space-y-5">
               <div>
                 <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-3">PRATINJAU HEADER APLIKASI</p>
-                <div class="p-4 sm:p-5 rounded-2xl border border-slate-100 bg-slate-50/60 flex items-center gap-3.5">
-                  <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0">
-                    <img id="preview-card-logo-img" src="" alt="Preview Logo" class="max-h-11 max-w-11 logo-transparent hidden" />
-                    <svg id="preview-card-default-logo" class="w-10 h-10" viewBox="0 0 48 48" fill="none">
+                <div class="p-4 sm:p-5 rounded-2xl border border-slate-100 bg-slate-50/60 flex items-center gap-4">
+                  <div class="flex items-center justify-center bg-transparent shrink-0">
+                    <img id="preview-card-logo-img" src="" alt="Preview Logo" class="h-14 sm:h-16 w-auto max-w-[180px] logo-transparent hidden" />
+                    <svg id="preview-card-default-logo" class="h-12 sm:h-14 w-auto" viewBox="0 0 48 48" fill="none">
                       <path d="M24 5L5 39H43L24 5Z" fill="#2563EB"/>
                       <circle cx="24" cy="28" r="4.5" fill="#FFFFFF"/>
                     </svg>
@@ -1237,6 +1277,34 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
     </div>
   </div>
 
+  <!-- ================= MODAL KONFIRMASI HAPUS PESERTA ================= -->
+  <div id="modal-delete-confirm" class="fixed inset-0 z-[100002] hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-2xl relative space-y-4 my-auto max-h-[90dvh] overflow-y-auto">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0">
+          <i class="fa-solid fa-trash-can"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-slate-800">Hapus Data Peserta?</h3>
+          <p class="text-xs text-slate-500">Data akan dihapus permanen dari daftar dan database.</p>
+        </div>
+      </div>
+      <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs space-y-1">
+        <p id="del-confirm-nama" class="font-extrabold text-royal-800 truncate">-</p>
+        <p id="del-confirm-detail" class="text-slate-500 truncate">-</p>
+      </div>
+      <div class="flex flex-col-reverse xs:flex-row items-stretch xs:items-center justify-end gap-2 pt-1">
+        <button type="button" id="btn-cancel-delete" onclick="closeDeleteParticipantModal()" class="touch-btn px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+          Batal
+        </button>
+        <button type="button" id="btn-confirm-delete" onclick="confirmDeleteParticipantExecution()" class="touch-btn px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition">
+          <i class="fa-solid fa-trash"></i>
+          <span>Ya, Hapus Permanen</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= MODAL KONEKSI DATABASE GAS ================= -->
   <div id="modal-database" class="fixed inset-0 z-[100001] hidden bg-slate-900/60 backdrop-blur-sm flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-7 shadow-2xl relative space-y-4 my-4 sm:my-auto max-h-[90dvh] overflow-y-auto">
@@ -1276,13 +1344,14 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
 
   <script>
     // KONFIGURASI URL DEPLOY GOOGLE APPS SCRIPT
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbwuYwLWDVpkF_39INyUUzcTWvQ3p1d2m99fPKdHn58wYQAIIGneat2UL3sITv3myJY/exec";
+    const GAS_URL = "URL_DEPLOY_GAS_ANDA_DISINI";
 
     const STORAGE_KEYS = {
       GAS_URL: 'FIKES_CERT_GAS_URL_V3',
       SETTINGS: 'FIKES_CERT_SETTINGS_V3',
       LAYOUT: 'FIKES_CERT_LAYOUT_V3',
       PARTICIPANTS: 'FIKES_CERT_PARTICIPANTS_V3',
+      DELETED_IDS: 'FIKES_CERT_DELETED_IDS_V3',
       USERS: 'FIKES_CERT_USERS_V3',
       LOGS: 'FIKES_CERT_LOGS_V3',
       SESSION: 'FIKES_CERT_SESSION_V3'
@@ -1296,8 +1365,8 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
       LOGO_URL: '',
       NOMOR_PATTERN: '{NO}/FIKES-CERT/XI/2026',
       AUTO_SEND_GFORM: true,
-      EMAIL_SUBJECT: 'E-Sertifikat Resmi - Fakultas Ilmu Kesehatan',
-      EMAIL_BODY: 'Halo {NAMA},\n\nTerima kasih atas partisipasi Anda sebagai {PERAN} dalam kegiatan {KEGIATAN}.\nTerlampir adalah E-Sertifikat resmi Anda dengan Nomor: {NOMOR}.\n\nSalam hangat,\nPanitia Pelaksana - Fakultas Ilmu Kesehatan',
+      EMAIL_SUBJECT: 'Official E-Certificate - THE 4TH INTERNATIONAL CONFERENCE ON HEALTH SCIENCES',
+      EMAIL_BODY: 'Dear {Full Name with Academic / Professional Titles},\n\nThank you for your participation and valuable contribution as a {Certificate Type} in THE 4TH INTERNATIONAL CONFERENCE ON HEALTH SCIENCES, organized by the Faculty of Health Sciences, National University of Indonesia.\n\nIn recognition of your participation, please find attached your official Electronic Certificate (E-Certificate) with the following details:\n\nName: {Full Name with Academic / Professional Titles}\n\nRole: {Certificate Type}\n\nEvent: THE 4TH INTERNATIONAL CONFERENCE ON HEALTH SCIENCES\n\nWe kindly encourage you to download and keep this certificate for your personal records.\n\nThank you once again for your participation and contribution. We sincerely appreciate your support and hope to welcome you to our future international academic events.\n\nBest regards,\n\nOrganizing Committee\nFaculty of Health Sciences\nNational University of Indonesia',
       UPDATED_AT: 0
     };
 
@@ -1338,6 +1407,7 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
       settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
       layout: JSON.parse(JSON.stringify(DEFAULT_LAYOUT)),
       participants: [],
+      deletedRegistry: [],
       users: JSON.parse(JSON.stringify(DEFAULT_USERS)),
       logs: [],
       currentUser: null,
@@ -1345,8 +1415,10 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
       searchPrefix: '',
       participantsViewMode: 'auto', // 'auto' | 'table' | 'card'
       previewZoom: 1, // 1 = Fit (100%)
+      pendingDeleteParticipantId: null,
       lastLocalSaveTimestamp: 0,
       isSaving: false,
+      isDeleting: false,
       isAutoSendingQueue: false
     };
 
@@ -1480,6 +1552,9 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
         const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
         if (savedSettings) {
           const parsed = JSON.parse(savedSettings);
+          if (parsed.EMAIL_BODY && parsed.EMAIL_BODY.trim().startsWith('Halo {NAMA},')) {
+            parsed.EMAIL_BODY = DEFAULT_SETTINGS.EMAIL_BODY;
+          }
           appState.settings = { ...DEFAULT_SETTINGS, ...parsed };
         }
 
@@ -1496,6 +1571,11 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
         const savedParticipants = localStorage.getItem(STORAGE_KEYS.PARTICIPANTS);
         if (savedParticipants) {
           appState.participants = JSON.parse(savedParticipants);
+        }
+
+        const savedDeleted = localStorage.getItem(STORAGE_KEYS.DELETED_IDS);
+        if (savedDeleted) {
+          appState.deletedRegistry = JSON.parse(savedDeleted);
         }
 
         const savedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
@@ -1532,11 +1612,90 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
       localStorage.setItem(STORAGE_KEYS.LAYOUT, JSON.stringify(appState.layout));
     }
 
+    function isParticipantInDeletedRegistry(p) {
+      if (!p || !Array.isArray(appState.deletedRegistry) || appState.deletedRegistry.length === 0) return false;
+      const pId = String(p.id || '').trim().toLowerCase();
+      const pEmail = String(p.email || '').trim().toLowerCase();
+      const pNomor = String(p.nomor || '').trim().toLowerCase();
+      const pNama = String(p.nama || '').trim().toLowerCase();
+
+      return appState.deletedRegistry.some(del => {
+        if (!del) return false;
+        if (pId && del.id && pId === del.id) return true;
+        if (pNomor && del.nomor && pNomor === del.nomor) return true;
+        if (pEmail && del.email && pEmail === del.email && (!pNama || !del.nama || pNama === del.nama)) return true;
+        return false;
+      });
+    }
+
+    function replaceDynamicEmailTags(templateStr, participantObj) {
+      if (!templateStr) return '';
+      const p = participantObj || {};
+      const namaVal = String(p.nama || '').trim() || 'Peserta';
+      const nomorVal = String(p.nomor || '').trim() || formatCertificateNumber(1, appState.settings.NOMOR_PATTERN);
+      const peranVal = String(p.peran || 'Participant').trim() || 'Participant';
+
+      let kegiatanVal = String(p.kegiatan || 'THE 4TH INTERNATIONAL CONFERENCE ON HEALTH SCIENCES').trim();
+      if (appState.settings.APP_SUBTITLE && appState.settings.APP_SUBTITLE.toLowerCase() !== 'fakultas ilmu kesehatan') {
+        kegiatanVal = appState.settings.APP_SUBTITLE.trim();
+      }
+
+      return String(templateStr).replace(/\{([^{}]+)\}/g, (match, rawTag) => {
+        const key = String(rawTag || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        if (
+          key === 'nama' ||
+          key === 'nama_peserta' ||
+          key === 'nama peserta' ||
+          key === 'nama lengkap' ||
+          key.includes('full name') ||
+          key.includes('fullname') ||
+          key.includes('academic') ||
+          key.includes('professional title')
+        ) {
+          return namaVal;
+        }
+        if (
+          key === 'peran' ||
+          key === 'role' ||
+          key === 'kategori' ||
+          key === 'status' ||
+          key === 'sebagai' ||
+          key.includes('certificate type') ||
+          key === 'certificate_type'
+        ) {
+          return peranVal;
+        }
+        if (
+          key === 'nomor' ||
+          key === 'no' ||
+          key === 'no_sertifikat' ||
+          key === 'nomor_sertifikat' ||
+          key === 'nomor sertifikat' ||
+          key.includes('no. sertifikat') ||
+          key.includes('no sertifikat') ||
+          key.includes('certificate number')
+        ) {
+          return nomorVal;
+        }
+        if (
+          key === 'kegiatan' ||
+          key === 'acara' ||
+          key === 'event' ||
+          key === 'nama_kegiatan' ||
+          key === 'nama kegiatan'
+        ) {
+          return kegiatanVal;
+        }
+        return match;
+      });
+    }
+
     async function syncFromDatabaseRealtime(silent = true) {
-      if (!isGasConnected() || appState.isSaving) return;
+      if (!isGasConnected() || appState.isSaving || appState.isDeleting) return;
       try {
         const res = await callGasApi('getInitialData');
         if (res && res.status === 'success' && res.data) {
+          if (appState.isSaving || appState.isDeleting) return;
           const data = res.data;
 
           // 1. Settings: hanya terima dari server jika timestamp server lebih baru dari lokal
@@ -1572,17 +1731,17 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
             renderLogsTable();
           }
 
-          // 4. Sinkronisasi Data Peserta (termasuk peserta baru dari Google Form)
+          // 4. Sinkronisasi Data Peserta (termasuk peserta baru dari Google Form, kecuali yang sudah dihapus)
           if (Array.isArray(data.participants)) {
-            appState.participants = data.participants;
+            appState.participants = data.participants.filter(p => !isParticipantInDeletedRegistry(p));
             localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(appState.participants));
             renderParticipantsTable();
             renderLiveCertificatePreview();
             updateDashboardCounters();
 
             // Jika ada peserta dari Google Form yang masih berstatus 'Belum Dikirim' dan Auto-Send aktif,
-            // kirim otomatis menggunakan engine PDF beresolusi tinggi
-            if (appState.settings.AUTO_SEND_GFORM !== false) {
+            // kirim otomatis menggunakan engine PDF beresolusi tinggi (HANYA jika tidak sedang menghapus)
+            if (appState.settings.AUTO_SEND_GFORM !== false && !appState.isDeleting) {
               autoSendNewGoogleFormParticipantsIfAny();
             }
           }
@@ -1669,6 +1828,10 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
       document.getElementById('header-app-subtitle').textContent = s.APP_SUBTITLE;
       document.getElementById('login-app-name').textContent = s.APP_NAME;
       document.getElementById('login-app-subtitle').textContent = s.APP_SUBTITLE;
+      const sbName = document.getElementById('sidebar-app-name');
+      const sbSub = document.getElementById('sidebar-app-subtitle');
+      if (sbName) sbName.textContent = s.APP_NAME;
+      if (sbSub) sbSub.textContent = s.APP_SUBTITLE;
       document.title = `${s.APP_NAME} - ${s.APP_SUBTITLE}`;
 
       document.getElementById('id-app-name').value = s.APP_NAME || '';
@@ -1690,6 +1853,8 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
       const pairs = [
         { img: 'header-logo-img', svg: 'header-default-logo' },
         { img: 'login-logo-img', svg: 'login-default-logo' },
+        { img: 'sidebar-logo-img', svg: 'sidebar-default-logo' },
+        { img: 'dashboard-logo-img', svg: 'dashboard-default-logo' },
         { img: 'preview-card-logo-img', svg: 'preview-card-default-logo' }
       ];
       pairs.forEach(p => {
@@ -1724,11 +1889,11 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
           updateLogoElements(e.target.result);
           showToast('Logo SVG berhasil dimuat. Klik "Simpan Perubahan Identitas Aplikasi" untuk menyimpan permanen.', 'info');
         } else {
-          compressImageDataUrl(e.target.result, 240, 0.9, (compressedDataUrl) => {
+          compressImageDataUrl(e.target.result, 800, 0.98, (compressedDataUrl) => {
             appState.settings.LOGO_URL = compressedDataUrl;
             updateLogoElements(compressedDataUrl);
-            showToast('Logo berhasil dimuat. Klik "Simpan Perubahan Identitas Aplikasi" untuk menyimpan permanen.', 'info');
-          });
+            showToast('Logo HD berhasil dimuat. Klik "Simpan Perubahan Identitas Aplikasi" untuk menyimpan permanen.', 'info');
+          }, 'image/png');
         }
       };
       reader.readAsDataURL(file);
@@ -1822,7 +1987,7 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
         try {
           const arrayBuffer = await file.arrayBuffer();
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-          const pdf = await pdf.getDocument ? await pdfjsLib.getDocument({ data: arrayBuffer }).promise : await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
           const page = await pdf.getPage(1);
           const viewport = page.getViewport({ scale: 2.0 });
           const tempCanvas = document.createElement('canvas');
@@ -1831,24 +1996,24 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
           const ctx = tempCanvas.getContext('2d');
           await page.render({ canvasContext: ctx, viewport }).promise;
 
-          compressImageDataUrl(tempCanvas.toDataURL('image/jpeg', 0.85), 1400, 0.82, (compressedBg) => {
+          compressImageDataUrl(tempCanvas.toDataURL('image/jpeg', 0.88), 1400, 0.85, (compressedBg) => {
             appState.layout.bgImage = compressedBg;
             saveLayoutLocally();
             renderLiveCertificatePreview();
             showToast('Desain PDF berhasil dipasang! Klik "Simpan Tata Letak" untuk mengunci permanen.', 'success');
-          });
+          }, 'image/jpeg');
         } catch (pdfErr) {
           showToast('Gagal membaca file PDF. Gunakan file PNG atau JPG.', 'error');
         }
       } else {
         const reader = new FileReader();
         reader.onload = function(e) {
-          compressImageDataUrl(e.target.result, 1400, 0.82, (compressedBg) => {
+          compressImageDataUrl(e.target.result, 1400, 0.85, (compressedBg) => {
             appState.layout.bgImage = compressedBg;
             saveLayoutLocally();
             renderLiveCertificatePreview();
             showToast('Desain sertifikat berhasil dimuat! Klik "Simpan Tata Letak" untuk menyimpan permanen.', 'success');
-          });
+          }, 'image/jpeg');
         };
         reader.readAsDataURL(file);
       }
@@ -2301,34 +2466,34 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
         return;
       }
 
-      // Render Baris Tabel (Nama & Metode 1 Baris Rapi)
+      // Render Baris Tabel (Lebar Proporsional & Kolom Aksi Rapi Sejajar)
       tbody.innerHTML = filtered.map(p => {
         const isSent = p.statusEmail === 'Terkirim';
         return `
           <tr class="hover:bg-slate-50/80 transition">
-            <td class="py-3.5 px-4 font-bold text-slate-700 whitespace-nowrap">${escapeHtml(p.nomor)}</td>
-            <td class="py-3.5 px-4 font-extrabold text-royal-800 whitespace-nowrap">${escapeHtml(p.nama)}</td>
-            <td class="py-3.5 px-4 text-slate-600 whitespace-nowrap">${escapeHtml(p.email)}</td>
-            <td class="py-3.5 px-4 whitespace-nowrap">
+            <td class="py-3.5 pl-5 pr-3 font-bold text-slate-700 whitespace-nowrap align-middle">${escapeHtml(p.nomor)}</td>
+            <td class="py-3.5 px-3 font-extrabold text-royal-800 whitespace-nowrap align-middle">${escapeHtml(p.nama)}</td>
+            <td class="py-3.5 px-3 text-slate-600 whitespace-nowrap align-middle">${escapeHtml(p.email)}</td>
+            <td class="py-3.5 px-3 whitespace-nowrap align-middle">
               <span class="inline-flex items-center px-3 py-1 rounded-full bg-royal-50 text-royal-700 font-bold text-[11px] whitespace-nowrap">${escapeHtml(p.peran || 'Participant')}</span>
             </td>
-            <td class="py-3.5 px-4 whitespace-nowrap">
+            <td class="py-3.5 px-3 whitespace-nowrap align-middle">
               <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-extrabold whitespace-nowrap ${isSent ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}">
                 ${isSent ? '✓ Terkirim' : 'Belum Dikirim'}
               </span>
             </td>
-            <td class="py-3.5 px-4 text-right whitespace-nowrap">
-              <div class="inline-flex items-center justify-end gap-1.5">
-                <button type="button" onclick="sendSingleCertificateEmail('${escapeHtml(p.id)}')" class="px-3 py-1.5 rounded-lg bg-royal-700 hover:bg-royal-800 text-white font-bold text-[11px] whitespace-nowrap transition">
+            <td class="py-3.5 pl-3 pr-6 text-center whitespace-nowrap align-middle">
+              <div class="inline-flex items-center justify-center gap-1.5 flex-nowrap">
+                <button type="button" onclick="sendSingleCertificateEmail('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-lg bg-royal-700 hover:bg-royal-800 text-white font-bold text-[11px] whitespace-nowrap transition shrink-0">
                   <i class="fa-regular fa-paper-plane mr-1"></i>Kirim Email
                 </button>
-                <button type="button" onclick="previewParticipantInStudio('${escapeHtml(p.id)}')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] inline-flex items-center justify-center transition" title="Lihat di Live Preview">
+                <button type="button" onclick="previewParticipantInStudio('${escapeHtml(p.id)}')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] inline-flex items-center justify-center transition shrink-0" title="Lihat di Live Preview">
                   <i class="fa-regular fa-eye"></i>
                 </button>
-                <button type="button" onclick="openEditParticipantModal('${escapeHtml(p.id)}')" class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] inline-flex items-center justify-center transition" title="Edit Nama / Certificate Type">
+                <button type="button" onclick="openEditParticipantModal('${escapeHtml(p.id)}')" class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] inline-flex items-center justify-center transition shrink-0" title="Edit Nama / Certificate Type">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-                <button type="button" onclick="deleteParticipant('${escapeHtml(p.id)}')" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[11px] inline-flex items-center justify-center transition" title="Hapus">
+                <button type="button" onclick="deleteParticipant(event, '${escapeHtml(p.id)}')" class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[11px] inline-flex items-center justify-center transition shrink-0" title="Hapus">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
@@ -2372,7 +2537,7 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
                 <button type="button" onclick="openEditParticipantModal('${escapeHtml(p.id)}')" class="touch-btn w-9 h-9 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 flex items-center justify-center shrink-0" title="Edit">
                   <i class="fa-solid fa-pen text-xs"></i>
                 </button>
-                <button type="button" onclick="deleteParticipant('${escapeHtml(p.id)}')" class="touch-btn w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center shrink-0" title="Hapus">
+                <button type="button" onclick="deleteParticipant(event, '${escapeHtml(p.id)}')" class="touch-btn w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center shrink-0" title="Hapus">
                   <i class="fa-solid fa-trash text-xs"></i>
                 </button>
               </div>
@@ -2445,6 +2610,16 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
         updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
       };
 
+      // Jika peserta ditambahkan manual kembali oleh Admin, bersihkan dari daftar blokir hapus
+      if (Array.isArray(appState.deletedRegistry) && appState.deletedRegistry.length > 0) {
+        const nEmail = newP.email.toLowerCase();
+        const nNomor = newP.nomor.toLowerCase();
+        appState.deletedRegistry = appState.deletedRegistry.filter(del =>
+          del.id !== newP.id.toLowerCase() && del.email !== nEmail && del.nomor !== nNomor
+        );
+        localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(appState.deletedRegistry));
+      }
+
       if (existingId) {
         const idx = appState.participants.findIndex(item => item.id === existingId);
         if (idx !== -1) appState.participants[idx] = newP;
@@ -2468,17 +2643,98 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
       showToast(`Data peserta ${newP.nama} (${newP.peran}) berhasil disimpan.`, 'success');
     }
 
-    async function deleteParticipant(id) {
-      appState.participants = appState.participants.filter(p => p.id !== id);
-      localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(appState.participants));
-      renderParticipantsTable();
-      updateDashboardCounters();
-      if (isGasConnected()) {
-        try {
-          await callGasApi('deleteParticipant', { id });
-        } catch (e) {}
+    function deleteParticipant(evt, id) {
+      if (evt && typeof evt.stopPropagation === 'function') {
+        evt.stopPropagation();
+        evt.preventDefault();
       }
-      showToast('Data peserta dihapus.', 'info');
+      const targetId = id || evt;
+      const p = appState.participants.find(item => String(item.id) === String(targetId));
+      if (!p) return;
+
+      appState.pendingDeleteParticipantId = p.id;
+      const namaEl = document.getElementById('del-confirm-nama');
+      const detailEl = document.getElementById('del-confirm-detail');
+      if (namaEl) namaEl.textContent = p.nama || '-';
+      if (detailEl) detailEl.textContent = `${p.nomor || '-'} • ${p.email || '-'}`;
+
+      const modal = document.getElementById('modal-delete-confirm');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeDeleteParticipantModal() {
+      appState.pendingDeleteParticipantId = null;
+      const modal = document.getElementById('modal-delete-confirm');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function confirmDeleteParticipantExecution() {
+      const id = appState.pendingDeleteParticipantId;
+      if (!id) {
+        closeDeleteParticipantModal();
+        return;
+      }
+
+      const targetParticipant = appState.participants.find(p => String(p.id) === String(id));
+      if (!targetParticipant) {
+        closeDeleteParticipantModal();
+        return;
+      }
+
+      const btnConfirm = document.getElementById('btn-confirm-delete');
+      const btnCancel = document.getElementById('btn-cancel-delete');
+      if (btnConfirm) {
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Menghapus...</span>';
+      }
+      if (btnCancel) btnCancel.disabled = true;
+
+      appState.isDeleting = true;
+      appState.lastLocalSaveTimestamp = Date.now();
+
+      try {
+        if (isGasConnected()) {
+          const res = await callGasApi('deleteParticipant', {
+            id: targetParticipant.id,
+            nomor: targetParticipant.nomor,
+            email: targetParticipant.email,
+            nama: targetParticipant.nama
+          });
+          if (!res || res.status !== 'success') {
+            throw new Error((res && res.message) || 'Gagal menghapus dari database');
+          }
+        }
+
+        // Catat di registry lokal agar tidak pernah muncul kembali saat reload
+        appState.deletedRegistry.push({
+          id: String(targetParticipant.id || '').trim().toLowerCase(),
+          nomor: String(targetParticipant.nomor || '').trim().toLowerCase(),
+          email: String(targetParticipant.email || '').trim().toLowerCase(),
+          nama: String(targetParticipant.nama || '').trim().toLowerCase()
+        });
+        localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(appState.deletedRegistry));
+
+        // Hapus langsung dari state & localStorage
+        appState.participants = appState.participants.filter(p => String(p.id) !== String(id));
+        localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(appState.participants));
+
+        closeDeleteParticipantModal();
+        renderParticipantsTable();
+        renderLiveCertificatePreview();
+        updateDashboardCounters();
+        showToast('Data peserta berhasil dihapus.', 'success');
+      } catch (err) {
+        closeDeleteParticipantModal();
+        showToast('Data peserta gagal dihapus. Silakan periksa koneksi dan database.', 'error');
+      } finally {
+        if (btnConfirm) {
+          btnConfirm.disabled = false;
+          btnConfirm.innerHTML = '<i class="fa-solid fa-trash"></i> <span>Ya, Hapus Permanen</span>';
+        }
+        if (btnCancel) btnCancel.disabled = false;
+        appState.isDeleting = false;
+        appState.lastLocalSaveTimestamp = Date.now();
+      }
     }
 
     // Mendukung Import File Excel (.xlsx, .xls) maupun .csv secara penuh di Android, iPhone, dan Desktop
@@ -2534,6 +2790,16 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
             statusEmail: 'Belum Dikirim',
             updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
           };
+
+          if (Array.isArray(appState.deletedRegistry) && appState.deletedRegistry.length > 0) {
+            const pEmailLow = p.email.toLowerCase();
+            const pNomorLow = p.nomor.toLowerCase();
+            const pNamaLow = p.nama.toLowerCase();
+            appState.deletedRegistry = appState.deletedRegistry.filter(del =>
+              del.email !== pEmailLow && del.nomor !== pNomorLow && del.nama !== pNamaLow
+            );
+          }
+
           appState.participants.push(p);
           newlyAdded.push(p);
         }
@@ -2543,6 +2809,7 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
           return;
         }
 
+        localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(appState.deletedRegistry));
         localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(appState.participants));
         renderParticipantsTable();
         renderLiveCertificatePreview();
@@ -2577,7 +2844,7 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
         const reader = new FileReader();
         reader.onload = function(e) {
           const lines = e.target.result.split(/\r?\n/).filter(l => l.trim() !== '');
-          const rows2D = lines.map(line => line.split(/[,;]/).map(c => c.replace(/^"|"$/g, '').trim()));
+          const rows2D = lines.map(line => parseCsvLineRespectingQuotes(line));
           processRowsArray(rows2D);
         };
         reader.readAsText(file);
@@ -2586,13 +2853,52 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
       event.target.value = '';
     }
 
+    function parseCsvLineRespectingQuotes(line) {
+      const delimiter = (line.indexOf(';') !== -1 && line.indexOf(',') === -1) ? ';' : ',';
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === delimiter && !inQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      result.push(current.trim());
+      return result.map(c => c.replace(/^"|"$/g, '').trim());
+    }
+
     async function sendSingleCertificateEmail(participantId, metodeCustom = 'Web App Manual') {
+      if (appState.isDeleting) return;
       const p = appState.participants.find(item => item.id === participantId);
       if (!p) return;
       if (!p.email) {
         showToast('Peserta ini tidak memiliki alamat email.', 'error');
         return;
       }
+
+      // Sinkronkan template terbaru dari input jika admin baru mengeditnya di tab Kirim Sertifikat
+      const subjInput = document.getElementById('email-subject-input');
+      const bodyInput = document.getElementById('email-body-input');
+      const rawSubjectTemplate = (subjInput && subjInput.value.trim()) ? subjInput.value.trim() : (appState.settings.EMAIL_SUBJECT || DEFAULT_SETTINGS.EMAIL_SUBJECT);
+      const rawBodyTemplate = (bodyInput && bodyInput.value.trim()) ? bodyInput.value : (appState.settings.EMAIL_BODY || DEFAULT_SETTINGS.EMAIL_BODY);
+
+      appState.settings.EMAIL_SUBJECT = rawSubjectTemplate;
+      appState.settings.EMAIL_BODY = rawBodyTemplate;
+
+      // Ganti seluruh tag {NAMA}, {NOMOR}, {PERAN}, {KEGIATAN} secara dinamis berdasarkan data peserta ini
+      const personalizedSubject = replaceDynamicEmailTags(rawSubjectTemplate, p);
+      const personalizedBody = replaceDynamicEmailTags(rawBodyTemplate, p);
 
       showToast(`Membuat PDF & mengirim sertifikat ke ${p.email}...`, 'info');
 
@@ -2604,8 +2910,8 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
             participant: p,
             pdfBase64: pdfBase64,
             metode: metodeCustom,
-            emailSubject: appState.settings.EMAIL_SUBJECT,
-            emailBody: appState.settings.EMAIL_BODY
+            emailSubject: personalizedSubject,
+            emailBody: personalizedBody
           });
           if (res && res.status === 'error') {
             throw new Error(res.message);
@@ -2894,7 +3200,16 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
 
       const adminMenus = document.querySelectorAll('.admin-only-menu');
       adminMenus.forEach(el => {
-        el.classList.toggle('hidden', role !== 'ADMIN');
+        if (el.classList.contains('sm:flex')) {
+          if (role === 'ADMIN') {
+            el.classList.add('hidden', 'sm:flex');
+          } else {
+            el.classList.add('hidden');
+            el.classList.remove('sm:flex');
+          }
+        } else {
+          el.classList.toggle('hidden', role !== 'ADMIN');
+        }
       });
     }
 
@@ -3073,13 +3388,11 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
           layout: appState.layout,
           users: appState.users
         });
-        await syncFromDatabaseRealtime(false);
-      } catch (e) {
-        showToast('URL disimpan. Pastikan izin akses Web App diset ke "Siapa saja (Anyone)".', 'info');
-      }
+      } catch (e) {}
+      await syncFromDatabaseRealtime(false);
     }
 
-    function compressImageDataUrl(dataUrl, maxWidth, quality, callback) {
+    function compressImageDataUrl(dataUrl, maxWidth, quality, callback, outputMime = 'image/jpeg') {
       const img = new Image();
       img.onload = function() {
         let w = img.width;
@@ -3092,8 +3405,14 @@ Panitia Pelaksana - Fakultas Ilmu Kesehatan</textarea>
         canvas.width = w;
         canvas.height = h;
         const ctx = canvas.getContext('2d');
+        if (outputMime === 'image/jpeg') {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, w, h);
+        } else {
+          ctx.clearRect(0, 0, w, h);
+        }
         ctx.drawImage(img, 0, 0, w, h);
-        callback(canvas.toDataURL('image/png', quality));
+        callback(canvas.toDataURL(outputMime, quality));
       };
       img.onerror = () => callback(dataUrl);
       img.src = dataUrl;
